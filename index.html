@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#10b981" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="PandaChinese" />
+  <title>PandaChinese Pro — Học Tiếng Trung HSK 1–9 (Offline)</title>
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="./icon.svg" />
+  <style>
+    :root {
+      --primary: #10b981;
+      --primary-dark: #059669;
+      --primary-soft: #ecfdf5;
+      --accent: #f59e0b;
+      --accent-soft: #fffbeb;
+      --danger: #ef4444;
+      --danger-soft: #fef2f2;
+      --info: #3b82f6;
+      --info-soft: #eff6ff;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --radius: 16px;
+      --shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding-bottom: 84px;
+      min-height: 100vh;
+    }
+    .hanzi-font {
+      font-family: "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", "Noto Sans SC", "Heiti SC", sans-serif;
+    }
+    /* Header */
+    .topbar {
+      position: sticky; top: 0; z-index: 40;
+      background: rgba(255,255,255,0.94);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 16px;
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.08rem; color: var(--primary-dark); }
+    .brand-logo { width: 34px; height: 34px; border-radius: 10px; background: var(--primary); color: #fff; display: grid; place-items: center; font-size: 1.2rem; }
+    .stats-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .pill {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 5px 10px; border-radius: 999px; font-size: 0.82rem; font-weight: 700;
+      background: var(--bg); border: 1px solid var(--border);
+    }
+    .pill.xp { background: var(--accent-soft); color: #b45309; border-color: #fde68a; }
+    .pill.streak { background: #fff7ed; color: #c2410c; border-color: #fed7aa; }
+    .pill.offline { background: var(--primary-soft); color: var(--primary-dark); border-color: #a7f3d0; }
+
+    /* Container */
+    .container { max-width: 820px; margin: 0 auto; padding: 16px; }
+    .section-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 18px; margin-bottom: 16px;
+      box-shadow: var(--shadow);
+    }
+    h2 { font-size: 1.2rem; font-weight: 800; margin-bottom: 6px; }
+    .subtext { color: var(--muted); font-size: 0.9rem; }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 10px 16px; border-radius: 12px; border: none; cursor: pointer;
+      font-weight: 700; font-size: 0.92rem; transition: transform 0.1s, opacity 0.15s;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background: var(--primary); color: #fff; box-shadow: 0 3px 0 var(--primary-dark); }
+    .btn-primary:hover { background: #0ea572; }
+    .btn-outline { background: var(--surface); color: var(--text); border: 1.5px solid var(--border); }
+    .btn-soft { background: var(--primary-soft); color: var(--primary-dark); }
+    .btn-accent { background: var(--accent); color: #fff; box-shadow: 0 3px 0 #d97706; }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-sm { padding: 7px 12px; font-size: 0.82rem; border-radius: 10px; }
+    .btn-block { width: 100%; }
+
+    /* HSK Filter Chips */
+    .chip-row { display: flex; gap: 8px; overflow-x: auto; padding: 6px 2px 10px; scrollbar-width: none; }
+    .chip-row::-webkit-scrollbar { display: none; }
+    .chip {
+      flex: 0 0 auto; padding: 7px 14px; border-radius: 999px;
+      border: 1.5px solid var(--border); background: var(--surface);
+      font-weight: 700; font-size: 0.85rem; cursor: pointer; color: var(--muted);
+    }
+    .chip.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+    /* Winding Path */
+    .path-wrap { display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 12px 0 24px; }
+    .tier-banner {
+      width: 100%; padding: 12px 16px; border-radius: 14px;
+      background: linear-gradient(135deg, #10b981, #047857); color: #fff;
+      display: flex; justify-content: space-between; align-items: center; font-weight: 800;
+    }
+    .tier-banner.mid { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+    .tier-banner.adv { background: linear-gradient(135deg, #8b5cf6, #6d28d9); }
+    .lesson-node {
+      width: 100%; max-width: 440px; background: var(--surface);
+      border: 2px solid var(--border); border-radius: 18px; padding: 14px 16px;
+      display: flex; align-items: center; gap: 14px; cursor: pointer;
+      transition: transform 0.15s, border-color 0.15s; box-shadow: var(--shadow);
+    }
+    .lesson-node:hover { transform: translateY(-2px); border-color: var(--primary); }
+    .lesson-node.done { border-color: #34d399; background: #f0fdf4; }
+    .lesson-node.locked { opacity: 0.58; cursor: not-allowed; filter: grayscale(0.4); }
+    .node-icon {
+      width: 54px; height: 54px; border-radius: 16px; font-size: 1.6rem;
+      display: grid; place-items: center; background: var(--primary-soft); flex-shrink: 0;
+    }
+    .lesson-node.done .node-icon { background: var(--primary); color: #fff; }
+    .node-info { flex: 1; min-width: 0; }
+    .node-meta { font-size: 0.76rem; font-weight: 800; color: var(--primary-dark); text-transform: uppercase; letter-spacing: 0.04em; }
+    .node-title { font-weight: 800; font-size: 1rem; margin: 2px 0; }
+    .node-words { font-size: 0.82rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* Bottom Navigation */
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 45;
+      background: var(--surface); border-top: 1px solid var(--border);
+      display: grid; grid-template-columns: repeat(5, 1fr);
+      padding: 6px 4px env(safe-area-inset-bottom, 8px);
+    }
+    .nav-btn {
+      background: none; border: none; cursor: pointer; padding: 6px 2px;
+      display: flex; flex-direction: column; align-items: center; gap: 3px;
+      color: var(--muted); font-size: 0.72rem; font-weight: 700;
+    }
+    .nav-btn span.ico { font-size: 1.3rem; line-height: 1; }
+    .nav-btn.active { color: var(--primary-dark); }
+
+    /* Fullscreen Lesson Modal */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 100; background: var(--bg);
+      display: none; flex-direction: column; overflow-y: auto;
+    }
+    .modal-overlay.open { display: flex; }
+    .lesson-header {
+      padding: 14px 16px; background: var(--surface); border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 5;
+    }
+    .progress-track { flex: 1; height: 12px; background: var(--border); border-radius: 999px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--primary); width: 0%; transition: width 0.3s; }
+    .lesson-body {
+      flex: 1; max-width: 640px; width: 100%; margin: 0 auto; padding: 20px 16px;
+      display: flex; flex-direction: column; justify-content: center;
+    }
+    .q-badge { display: inline-block; padding: 4px 10px; border-radius: 8px; background: var(--info-soft); color: #1d4ed8; font-weight: 800; font-size: 0.78rem; margin-bottom: 10px; }
+    .q-hanzi { font-size: 2.6rem; font-weight: 800; text-align: center; margin: 10px 0 4px; }
+    .q-pinyin { font-size: 1.15rem; color: var(--primary-dark); text-align: center; font-weight: 700; margin-bottom: 14px; }
+    .pinyin-hidden .q-pinyin, .pinyin-hidden .opt-pinyin { visibility: hidden; height: 0; margin: 0; overflow: hidden; }
+    .audio-row { display: flex; justify-content: center; gap: 10px; margin-bottom: 18px; }
+    .opt-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+    .opt-btn {
+      text-align: left; padding: 14px 16px; border-radius: 14px;
+      border: 2px solid var(--border); background: var(--surface);
+      cursor: pointer; font-weight: 700; font-size: 1rem; transition: all 0.15s;
+    }
+    .opt-btn:hover { border-color: var(--primary); }
+    .opt-btn.selected { border-color: var(--info); background: var(--info-soft); }
+    .opt-btn.correct { border-color: var(--primary); background: var(--primary-soft); color: var(--primary-dark); }
+    .opt-btn.wrong { border-color: var(--danger); background: var(--danger-soft); color: #b91c1c; }
+
+    .match-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .match-card {
+      padding: 14px 10px; border-radius: 14px; border: 2px solid var(--border);
+      background: var(--surface); text-align: center; font-weight: 700; cursor: pointer;
+    }
+    .match-card.selected { border-color: var(--info); background: var(--info-soft); }
+    .match-card.matched { opacity: 0.35; pointer-events: none; border-color: var(--primary); background: var(--primary-soft); }
+
+    .sentence-box {
+      min-height: 60px; padding: 12px; border: 2px dashed var(--border);
+      border-radius: 14px; background: var(--surface); display: flex; flex-wrap: wrap; gap: 8px;
+      margin-bottom: 14px; align-items: center;
+    }
+    .word-bank { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .token {
+      padding: 8px 14px; border-radius: 10px; border: 1.5px solid var(--border);
+      background: var(--surface); font-weight: 700; cursor: pointer; font-size: 1.05rem;
+    }
+    .token.used { opacity: 0.3; pointer-events: none; }
+
+    .feedback-bar {
+      padding: 16px; border-top: 1px solid var(--border); background: var(--surface);
+      position: sticky; bottom: 0;
+    }
+    .feedback-bar.ok { background: var(--primary-soft); border-color: #a7f3d0; }
+    .feedback-bar.bad { background: var(--danger-soft); border-color: #fecaca; }
+    .feedback-inner { max-width: 640px; margin: 0 auto; display: flex; flex-direction: column; gap: 10px; }
+
+    /* Pinyin Grid */
+    .py-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 8px; margin-top: 10px; }
+    .py-card {
+      background: var(--bg); border: 1.5px solid var(--border); border-radius: 12px;
+      padding: 10px 6px; text-align: center; cursor: pointer;
+    }
+    .py-card:hover { border-color: var(--primary); background: var(--primary-soft); }
+    .py-card strong { display: block; font-size: 1.15rem; color: var(--primary-dark); }
+    .py-card small { font-size: 0.72rem; color: var(--muted); }
+
+    /* Hanzi Canvas */
+    .canvas-wrap {
+      position: relative; width: 320px; height: 320px; max-width: 100%;
+      margin: 14px auto; border: 3px solid var(--primary); border-radius: 18px;
+      background: #fff; overflow: hidden; touch-action: none;
+    }
+    .canvas-wrap canvas { width: 100%; height: 100%; display: block; touch-action: none; cursor: crosshair; }
+    .ghost-char {
+      position: absolute; inset: 0; display: grid; place-items: center;
+      font-size: 210px; color: rgba(148, 163, 184, 0.28); pointer-events: none; user-select: none;
+    }
+
+    /* Flashcard 3D */
+    .fc-scene { perspective: 1000px; height: 240px; margin: 14px 0; cursor: pointer; }
+    .fc-card {
+      width: 100%; height: 100%; position: relative; transform-style: preserve-3d;
+      transition: transform 0.5s;
+    }
+    .fc-card.flipped { transform: rotateY(180deg); }
+    .fc-face {
+      position: absolute; inset: 0; backface-visibility: hidden;
+      border-radius: 20px; border: 2px solid var(--border); background: var(--surface);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 20px; text-align: center; box-shadow: var(--shadow);
+    }
+    .fc-back { transform: rotateY(180deg); background: var(--primary-soft); border-color: #6ee7b7; }
+
+    /* Form Inputs */
+    .input {
+      width: 100%; padding: 11px 14px; border-radius: 12px;
+      border: 1.5px solid var(--border); font-size: 0.95rem; background: var(--surface);
+      margin-bottom: 10px; outline: none;
+    }
+    .input:focus { border-color: var(--primary); }
+
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+
+    .dict-item {
+      display: flex; justify-content: space-between; align-items: center; gap: 10px;
+      padding: 12px; border-bottom: 1px solid var(--border);
+    }
+    .dict-item:last-child { border-bottom: none; }
+    .badge {
+      display: inline-block; padding: 2px 8px; border-radius: 6px;
+      font-size: 0.72rem; font-weight: 800; background: var(--primary-soft); color: var(--primary-dark);
+    }
+    .toast {
+      position: fixed; top: 72px; left: 50%; transform: translateX(-50%);
+      background: #0f172a; color: #fff; padding: 10px 18px; border-radius: 999px;
+      font-size: 0.86rem; font-weight: 700; z-index: 200; opacity: 0;
+      pointer-events: none; transition: opacity 0.25s;
+    }
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-logo">🐼</div>
+    <div>
+      <div>PandaChinese Pro</div>
+      <div style="font-size:0.7rem;color:var(--muted);font-weight:600;">HSK 1–9 • Bản Offline</div>
+    </div>
+  </div>
+  <div class="stats-bar">
+    <span class="pill offline" id="offlineBadge">⚡ Offline Ready</span>
+    <span class="pill streak">🔥 <span id="statStreak">1</span></span>
+    <span class="pill xp">⭐ <span id="statXp">0</span> XP</span>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- TAB 1: LỘ TRÌNH HỌC -->
+  <section id="tab-learn" class="tab-pane active">
+    <div class="section-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
+        <div>
+          <h2>Lộ trình xuyên suốt HSK 1–9</h2>
+          <p class="subtext" id="progressSummary">Hoàn thành 0/24 bài học (0%)</p>
+        </div>
+        <button class="btn btn-soft btn-sm" id="btnUnlockAll" onclick="toggleUnlockAll()">🔓 Mở khóa tất cả</button>
+      </div>
+      <div class="chip-row" id="hskFilterRow" style="margin-top:10px;"></div>
+    </div>
+    <div class="path-wrap" id="lessonPath"></div>
+  </section>
+
+  <!-- TAB 2: PINYIN & THANH ĐIỆU -->
+  <section id="tab-pinyin" class="tab-pane">
+    <div class="section-card">
+      <h2>Biểu đồ 4 Thanh điệu tiếng Trung</h2>
+      <p class="subtext">Bấm vào từng thanh điệu để nghe phát âm mẫu chuẩn (mā, má, mǎ, mà).</p>
+      <svg viewBox="0 0 400 130" style="width:100%;max-width:440px;display:block;margin:12px auto;background:#f8fafc;border-radius:12px;border:1px solid var(--border);">
+        <line x1="20" y1="25" x2="380" y2="25" stroke="#cbd5e1" stroke-dasharray="4"/>
+        <line x1="20" y1="65" x2="380" y2="65" stroke="#cbd5e1" stroke-dasharray="4"/>
+        <line x1="20" y1="105" x2="380" y2="105" stroke="#cbd5e1" stroke-dasharray="4"/>
+        <!-- Tone 1 -->
+        <path d="M35 30 L95 30" stroke="#10b981" stroke-width="6" stroke-linecap="round"/>
+        <text x="65" y="122" text-anchor="middle" font-size="13" font-weight="bold" fill="#059669">1. mā (5-5)</text>
+        <!-- Tone 2 -->
+        <path d="M130 75 L190 30" stroke="#3b82f6" stroke-width="6" stroke-linecap="round"/>
+        <text x="160" y="122" text-anchor="middle" font-size="13" font-weight="bold" fill="#1d4ed8">2. má (3-5)</text>
+        <!-- Tone 3 -->
+        <path d="M225 75 Q255 110 285 55" stroke="#f59e0b" stroke-width="6" stroke-linecap="round" fill="none"/>
+        <text x="255" y="122" text-anchor="middle" font-size="13" font-weight="bold" fill="#b45309">3. mǎ (2-1-4)</text>
+        <!-- Tone 4 -->
+        <path d="M320 28 L375 100" stroke="#ef4444" stroke-width="6" stroke-linecap="round"/>
+        <text x="348" y="122" text-anchor="middle" font-size="13" font-weight="bold" fill="#b91c1c">4. mà (5-1)</text>
+      </svg>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+        <button class="btn btn-outline btn-sm" onclick="speak('妈')">🔊 mā (1)</button>
+        <button class="btn btn-outline btn-sm" onclick="speak('麻')">🔊 má (2)</button>
+        <button class="btn btn-outline btn-sm" onclick="speak('马')">🔊 mǎ (3)</button>
+        <button class="btn btn-outline btn-sm" onclick="speak('骂')">🔊 mà (4)</button>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <h2>Mini-Game: Nghe đoán thanh điệu</h2>
+      <p class="subtext">Chuỗi đúng hiện tại: <strong id="toneStreak">0</strong> 🔥</p>
+      <div style="text-align:center;margin:14px 0;">
+        <button class="btn btn-primary" onclick="playToneGameAudio()">🔊 Nghe âm tiết</button>
+        <div id="toneGameHint" style="margin-top:8px;font-weight:700;color:var(--muted);">Bấm nghe và chọn đúng thanh điệu (1–4)</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+        <button class="btn btn-outline" onclick="guessTone(1)">Thanh 1 (ˉ)</button>
+        <button class="btn btn-outline" onclick="guessTone(2)">Thanh 2 (ˊ)</button>
+        <button class="btn btn-outline" onclick="guessTone(3)">Thanh 3 (ˇ)</button>
+        <button class="btn btn-outline" onclick="guessTone(4)">Thanh 4 (ˋ)</button>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <h2>21 Thanh mẫu (Phụ âm đầu)</h2>
+      <div class="py-grid" id="initialsGrid"></div>
+    </div>
+
+    <div class="section-card">
+      <h2>15 Vận mẫu cơ bản</h2>
+      <div class="py-grid" id="finalsGrid"></div>
+    </div>
+  </section>
+
+  <!-- TAB 3: TẬP VIẾT HANZI STUDIO -->
+  <section id="tab-write" class="tab-pane">
+    <div class="section-card">
+      <h2>Hanzi Studio — Tập viết chữ Hán (米字格)</h2>
+      <p class="subtext">Hỗ trợ chuột, cảm ứng ngón tay và bút cảm ứng (tự khóa cuộn trang khi vẽ).</p>
+      <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;align-items:center;">
+        <select class="input" id="writeHskSelect" style="width:auto;margin:0;" onchange="populateWriteChars()">
+          <option value="1">HSK 1</option><option value="2">HSK 2</option><option value="3">HSK 3</option>
+          <option value="4">HSK 4</option><option value="5">HSK 5</option><option value="6">HSK 6</option>
+          <option value="7">HSK 7</option><option value="8">HSK 8</option><option value="9">HSK 9</option>
+        </select>
+        <select class="input" id="writeCharSelect" style="flex:1;margin:0;" onchange="selectWriteChar()"></select>
+        <button class="btn btn-soft btn-sm" onclick="speak(currentWriteChar)">🔊 Nghe</button>
+      </div>
+      <div id="writeWordInfo" style="margin-top:10px;font-weight:700;color:var(--primary-dark);text-align:center;"></div>
+      <div class="canvas-wrap">
+        <div class="ghost-char hanzi-font" id="ghostChar">你</div>
+        <canvas id="hanziCanvas" width="320" height="320"></canvas>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+        <button class="btn btn-outline btn-sm" onclick="toggleGhost()">👁️ Ẩn/Hiện mẫu</button>
+        <button class="btn btn-outline btn-sm" onclick="undoStroke()">↩️ Hoàn tác</button>
+        <button class="btn btn-outline btn-sm" onclick="clearCanvas()">🗑️ Xóa hết</button>
+        <button class="btn btn-outline btn-sm" onclick="cycleInkColor()">🎨 Đổi màu mực</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- TAB 4: ÔN TẬP & THI THỬ -->
+  <section id="tab-review" class="tab-pane">
+    <div class="section-card">
+      <h2>Thi thử nhanh HSK (10 câu)</h2>
+      <p class="subtext">Kiểm tra phản xạ từ vựng theo từng cấp độ HSK 1–9.</p>
+      <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
+        <select class="input" id="examHskSelect" style="flex:1;margin:0;">
+          <option value="0">Tổng hợp HSK 1–9</option>
+          <option value="1">HSK 1</option><option value="2">HSK 2</option><option value="3">HSK 3</option>
+          <option value="4">HSK 4</option><option value="5">HSK 5</option><option value="6">HSK 6</option>
+          <option value="7">HSK 7</option><option value="8">HSK 8</option><option value="9">HSK 9</option>
+        </select>
+        <button class="btn btn-accent" onclick="startMockExam()">📝 Bắt đầu thi</button>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <h2>Flashcards 3D</h2>
+        <span class="badge" id="fcCounter">1 / 120</span>
+      </div>
+      <div class="fc-scene" onclick="flipCard()">
+        <div class="fc-card" id="fcCard">
+          <div class="fc-face">
+            <span class="badge" id="fcLevel" style="margin-bottom:8px;">HSK 1</span>
+            <div class="hanzi-font" id="fcHanzi" style="font-size:3rem;font-weight:800;">你好</div>
+            <div id="fcPinyin" style="font-size:1.1rem;color:var(--primary-dark);font-weight:700;margin-top:6px;">nǐ hǎo</div>
+            <div class="subtext" style="margin-top:12px;">(Chạm để lật xem nghĩa & ví dụ)</div>
+          </div>
+          <div class="fc-face fc-back">
+            <div id="fcVi" style="font-size:1.4rem;font-weight:800;color:var(--primary-dark);">Xin chào</div>
+            <div class="hanzi-font" id="fcEx" style="font-size:1.05rem;font-weight:700;margin-top:10px;"></div>
+            <div id="fcExVi" class="subtext" style="margin-top:4px;"></div>
+            <div id="fcTip" style="font-size:0.8rem;color:#047857;margin-top:10px;background:#fff;padding:6px 10px;border-radius:8px;"></div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:center;">
+        <button class="btn btn-outline btn-sm" onclick="prevCard()">⬅️ Trước</button>
+        <button class="btn btn-soft btn-sm" onclick="speak(allWords[fcIndex].hanzi)">🔊 Nghe từ</button>
+        <button class="btn btn-primary btn-sm" onclick="nextCard()">Tiếp ➡️</button>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <h2>Sổ từ vựng HSK 1–9</h2>
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <input type="text" class="input" id="dictSearch" placeholder="Tìm chữ Hán, Pinyin hoặc nghĩa tiếng Việt..." oninput="renderDict()" style="margin:0;flex:1;" />
+        <select class="input" id="dictHsk" onchange="renderDict()" style="width:105px;margin:0;">
+          <option value="0">Tất cả</option>
+          <option value="1">HSK 1</option><option value="2">HSK 2</option><option value="3">HSK 3</option>
+          <option value="4">HSK 4</option><option value="5">HSK 5</option><option value="6">HSK 6</option>
+          <option value="7">HSK 7</option><option value="8">HSK 8</option><option value="9">HSK 9</option>
+        </select>
+      </div>
+      <div id="dictList" style="margin-top:10px;max-height:360px;overflow-y:auto;"></div>
+    </div>
+  </section>
+
+  <!-- TAB 5: HỒ SƠ & CHIA SẺ OFFLINE -->
+  <section id="tab-profile" class="tab-pane">
+    <div class="section-card" id="authCard"></div>
+
+    <div class="section-card">
+      <h2>Sao lưu & Chuyển tiến độ sang máy khác (Offline)</h2>
+      <p class="subtext">Vì ứng dụng chạy 100% offline không cần máy chủ, bạn có thể xuất file <code>.json</code> để chuyển toàn bộ tài khoản và tiến độ học sang điện thoại, máy tính bảng hoặc PC khác.</p>
+      <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;">
+        <button class="btn btn-primary btn-sm" onclick="exportBackup()">⬇️ Xuất file sao lưu (.json)</button>
+        <label class="btn btn-outline btn-sm" style="cursor:pointer;">
+          ⬆️ Nhập file sao lưu (.json)
+          <input type="file" accept=".json" style="display:none;" onchange="importBackup(event)" />
+        </label>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <h2>Cài đặt học tập</h2>
+      <label style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;cursor:pointer;">
+        <span><strong>Hiển thị Pinyin mặc định trong bài học</strong><br><small class="subtext">Tắt đi nếu bạn đang luyện đọc thuần Hán tự HSK 4–9</small></span>
+        <input type="checkbox" id="settingPinyin" checked onchange="saveSettings()" style="width:20px;height:20px;accent-color:var(--primary);" />
+      </label>
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+        <span class="subtext">Trạng thái âm thanh: Web Speech API (zh-CN) + Web Audio</span>
+        <button class="btn btn-outline btn-sm" onclick="resetCurrentProgress()">🔄 Đặt lại tiến độ</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- BOTTOM NAVIGATION -->
+<nav class="bottom-nav">
+  <button class="nav-btn active" data-tab="learn" onclick="switchTab('learn')"><span class="ico">🗺️</span><span>Học</span></button>
+  <button class="nav-btn" data-tab="pinyin" onclick="switchTab('pinyin')"><span class="ico">🎵</span><span>Pinyin</span></button>
+  <button class="nav-btn" data-tab="write" onclick="switchTab('write')"><span class="ico">✍️</span><span>Tập viết</span></button>
+  <button class="nav-btn" data-tab="review" onclick="switchTab('review')"><span class="ico">🗂️</span><span>Ôn tập</span></button>
+  <button class="nav-btn" data-tab="profile" onclick="switchTab('profile')"><span class="ico">👤</span><span>Hồ sơ</span></button>
+</nav>
+
+<!-- LESSON / EXAM FULLSCREEN MODAL -->
+<div class="modal-overlay" id="lessonModal">
+  <div class="lesson-header">
+    <button class="btn btn-outline btn-sm" onclick="closeLesson()">✕</button>
+    <div class="progress-track"><div class="progress-fill" id="lessonProgress"></div></div>
+    <button class="btn btn-soft btn-sm" id="btnTogglePinyin" onclick="toggleLessonPinyin()">Pinyin: Bật</button>
+  </div>
+  <div class="lesson-body" id="lessonBody"></div>
+  <div class="feedback-bar" id="feedbackBar">
+    <div class="feedback-inner" id="feedbackInner"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ================= DATA =================
+const CURRICULUM = [{"id": "hsk1-1", "hsk": 1, "tier": "Sơ cấp", "title": "Chào hỏi cơ bản", "icon": "👋", "words": [{"hanzi": "你好", "pinyin": "nǐ hǎo", "vi": "Xin chào", "ex": "你好，很高兴认识你。", "exP": "Nǐ hǎo, hěn gāoxìng rènshi nǐ.", "exVi": "Xin chào, rất vui được quen bạn.", "tip": "Hai thanh 3 đi liền nhau, 'nǐ' đọc thành thanh 2 (ní hǎo)."}, {"hanzi": "谢谢", "pinyin": "xièxie", "vi": "Cảm ơn", "ex": "谢谢你的帮助！", "exP": "Xièxie nǐ de bāngzhù!", "exVi": "Cảm ơn sự giúp đỡ của bạn!", "tip": "Âm thứ hai đọc thanh nhẹ, ngắn và gọn."}, {"hanzi": "再见", "pinyin": "zàijiàn", "vi": "Tạm biệt", "ex": "明天见，再见！", "exP": "Míngtiān jiàn, zàijiàn!", "exVi": "Mai gặp nhé, tạm biệt!", "tip": "再 (lại) + 见 (gặp) = Hẹn gặp lại."}, {"hanzi": "对不起", "pinyin": "duìbuqǐ", "vi": "Xin lỗi", "ex": "对不起，我来晚了。", "exP": "Duìbuqǐ, wǒ lái wǎn le.", "exVi": "Xin lỗi, tôi đến muộn rồi.", "tip": "Thường đi kèm câu đáp lại '没关系' (không sao đâu)."}, {"hanzi": "没关系", "pinyin": "méi guānxi", "vi": "Không sao đâu", "ex": "没关系，别客气。", "exP": "Méi guānxi, bié kèqi.", "exVi": "Không sao đâu, đừng khách sáo.", "tip": "Dùng để đáp lại lời xin lỗi rất tự nhiên."}]}, {"id": "hsk1-2", "hsk": 1, "tier": "Sơ cấp", "title": "Số đếm & Thời gian", "icon": "⏰", "words": [{"hanzi": "今天", "pinyin": "jīntiān", "vi": "Hôm nay", "ex": "今天天气很好。", "exP": "Jīntiān tiānqì hěn hǎo.", "exVi": "Hôm nay thời tiết rất đẹp.", "tip": "今 (kim - nay) + 天 (thiên - ngày)."}, {"hanzi": "明天", "pinyin": "míngtiān", "vi": "Ngày mai", "ex": "明天我去上班。", "exP": "Míngtiān wǒ qù shàngbān.", "exVi": "Ngày mai tôi đi làm.", "tip": "明 ghép từ 日 (mặt trời) và 月 (mặt trăng)."}, {"hanzi": "现在", "pinyin": "xiànzài", "vi": "Bây giờ", "ex": "现在几点了？", "exP": "Xiànzài jǐ diǎn le?", "exVi": "Bây giờ là mấy giờ rồi?", "tip": "Đặt ở đầu câu hoặc ngay sau chủ ngữ."}, {"hanzi": "小时", "pinyin": "xiǎoshí", "vi": "Tiếng đồng hồ", "ex": "我学习两个小时。", "exP": "Wǒ xuéxí liǎng gè xiǎoshí.", "exVi": "Tôi học hai tiếng đồng hồ.", "tip": "Chỉ khoảng thời gian (khác với 点 là mốc giờ)."}, {"hanzi": "星期", "pinyin": "xīngqī", "vi": "Tuần / Thứ", "ex": "今天是星期一。", "exP": "Jīntiān shì xīngqīyī.", "exVi": "Hôm nay là thứ Hai.", "tip": "Ghép số 1–6 phía sau cho thứ Hai đến thứ Bảy."}]}, {"id": "hsk1-3", "hsk": 1, "tier": "Sơ cấp", "title": "Gia đình & Bạn bè", "icon": "👨‍👩‍👧", "words": [{"hanzi": "朋友", "pinyin": "péngyou", "vi": "Bạn bè", "ex": "他是我的好朋友。", "exP": "Tā shì wǒ de hǎo péngyou.", "exVi": "Anh ấy là bạn thân của tôi.", "tip": "朋 gồm hai bộ nguyệt sóng đôi như đôi bạn."}, {"hanzi": "老师", "pinyin": "lǎoshī", "vi": "Giáo viên", "ex": "王老师教汉语。", "exP": "Wáng lǎoshī jiāo Hànyǔ.", "exVi": "Thầy/Cô Vương dạy tiếng Trung.", "tip": "Họ luôn đứng trước chức danh: 王老师."}, {"hanzi": "家人", "pinyin": "jiārén", "vi": "Người nhà", "ex": "我很爱我的家人。", "exP": "Wǒ hěn ài wǒ de jiārén.", "exVi": "Tôi rất yêu gia đình mình.", "tip": "家 (nhà) có bộ mái 宀 che chở cho 豕 bên dưới."}, {"hanzi": "名字", "pinyin": "míngzi", "vi": "Tên", "ex": "你叫什么名字？", "exP": "Nǐ jiào shénme míngzi?", "exVi": "Bạn tên là gì?", "tip": "Câu hỏi tên kinh điển nhất tiếng Trung."}, {"hanzi": "学习", "pinyin": "xuéxí", "vi": "Học tập", "ex": "我每天学习中文。", "exP": "Wǒ měitiān xuéxí Zhōngwén.", "exVi": "Tôi học tiếng Trung mỗi ngày.", "tip": "学 (học) + 习 (ôn luyện)."}]}, {"id": "hsk2-1", "hsk": 2, "tier": "Sơ cấp", "title": "Ăn uống & Mua sắm", "icon": "🍜", "words": [{"hanzi": "便宜", "pinyin": "piányi", "vi": "Rẻ", "ex": "这个苹果很便宜。", "exP": "Zhège píngguǒ hěn piányi.", "exVi": "Quả táo này rất rẻ.", "tip": "Chữ 便 ở đây đọc là pián (không phải biàn)."}, {"hanzi": "服务员", "pinyin": "fúwùyuán", "vi": "Nhân viên phục vụ", "ex": "服务员，请买单！", "exP": "Fúwùyuán, qǐng mǎidān!", "exVi": "Phục vụ ơi, cho tính tiền!", "tip": "Hậu tố 员 chỉ người làm nghề/nhân viên."}, {"hanzi": "准备", "pinyin": "zhǔnbèi", "vi": "Chuẩn bị", "ex": "我准备去旅游。", "exP": "Wǒ zhǔnbèi qù lǚyóu.", "exVi": "Tôi chuẩn bị đi du lịch.", "tip": "Có thể làm động từ (chuẩn bị) hoặc dự định."}, {"hanzi": "好吃", "pinyin": "hǎochī", "vi": "Ngon (đồ ăn)", "ex": "越南河粉真好吃。", "exP": "Yuènán héfěn zhēn hǎochī.", "exVi": "Phở Việt Nam thật ngon.", "tip": "好 + động từ = dễ/ngon/đẹp (好喝 ngon đồ uống, 好看 đẹp)."}, {"hanzi": "菜单", "pinyin": "càidān", "vi": "Thực đơn", "ex": "请给我看一下菜单。", "exP": "Qǐng gěi wǒ kàn yíxià càidān.", "exVi": "Làm ơn cho tôi xem thực đơn.", "tip": "菜 (món ăn) + 单 (danh sách)."}]}, {"id": "hsk2-2", "hsk": 2, "tier": "Sơ cấp", "title": "Đi lại & Phương hướng", "icon": "🚆", "words": [{"hanzi": "地铁", "pinyin": "dìtiě", "vi": "Tàu điện ngầm", "ex": "坐地铁去公司很快。", "exP": "Zuò dìtiě qù gōngsī hěn kuài.", "exVi": "Đi tàu điện ngầm đến công ty rất nhanh.", "tip": "地 (đất) + 铁 (đường sắt ngầm)."}, {"hanzi": "旁边", "pinyin": "pángbiān", "vi": "Bên cạnh", "ex": "银行在超市旁边。", "exP": "Yínháng zài chāoshì pángbiān.", "exVi": "Ngân hàng ở bên cạnh siêu thị.", "tip": "Phương vị từ đứng sau danh từ mốc."}, {"hanzi": "右边", "pinyin": "yòubiān", "vi": "Bên phải", "ex": "往右边走两百米。", "exP": "Wǎng yòubiān zǒu liǎngbǎi mǐ.", "exVi": "Đi về bên phải 200 mét.", "tip": "右 có bộ 口 (miệng) — tay phải cầm đũa đưa vào miệng."}, {"hanzi": "机场", "pinyin": "jīchǎng", "vi": "Sân bay", "ex": "我们八点到机场。", "exP": "Wǒmen bā diǎn dào jīchǎng.", "exVi": "Chúng tôi đến sân bay lúc 8 giờ.", "tip": "机 (máy bay) + 场 (bãi/trường)."}, {"hanzi": "旅游", "pinyin": "lǚyóu", "vi": "Du lịch", "ex": "我喜欢去海边旅游。", "exP": "Wǒ xǐhuan qù hǎibiān lǚyóu.", "exVi": "Tôi thích đi du lịch biển.", "tip": "Động từ rất phổ biến trong giao tiếp đời sống."}]}, {"id": "hsk2-3", "hsk": 2, "tier": "Sơ cấp", "title": "Sức khỏe & Sinh hoạt", "icon": "🏃", "words": [{"hanzi": "休息", "pinyin": "xiūxi", "vi": "Nghỉ ngơi", "ex": "你太累了，快休息吧。", "exP": "Nǐ tài lèi le, kuài xiūxi ba.", "exVi": "Bạn mệt quá rồi, mau nghỉ ngơi đi.", "tip": "休 gồm bộ 亻 (người) tựa vào 木 (cây) để nghỉ."}, {"hanzi": "运动", "pinyin": "yùndòng", "vi": "Thể thao / Vận động", "ex": "每天运动对身体好。", "exP": "Měitiān yùndòng duì shēntǐ hǎo.", "exVi": "Vận động mỗi ngày tốt cho sức khỏe.", "tip": "Vừa là danh từ vừa là động từ."}, {"hanzi": "生病", "pinyin": "shēngbìng", "vi": "Bị ốm", "ex": "他生病了，去医院了。", "exP": "Tā shēngbìng le, qù yīyuàn le.", "exVi": "Anh ấy bị ốm, đi bệnh viện rồi.", "tip": "Động từ ly hợp: 生了一场病 (ốm một trận)."}, {"hanzi": "身体", "pinyin": "shēntǐ", "vi": "Cơ thể / Sức khỏe", "ex": "祝你身体健康！", "exP": "Zhù nǐ shēntǐ jiànkāng!", "exVi": "Chúc bạn sức khỏe dồi dào!", "tip": "Câu chúc lịch sự dùng được trong mọi dịp."}, {"hanzi": "起床", "pinyin": "qǐchuáng", "vi": "Thức dậy", "ex": "我早上六点起床。", "exP": "Wǒ zǎoshang liù diǎn qǐchuáng.", "exVi": "Tôi thức dậy lúc 6 giờ sáng.", "tip": "起 (dậy) + 床 (giường)."}]}, {"id": "hsk3-1", "hsk": 3, "tier": "Sơ cấp", "title": "Công việc & Kế hoạch", "icon": "💼", "words": [{"hanzi": "决定", "pinyin": "juédìng", "vi": "Quyết định", "ex": "我决定换一份新工作。", "exP": "Wǒ juédìng huàn yí fèn xīn gōngzuò.", "exVi": "Tôi quyết định đổi một công việc mới.", "tip": "Dùng được cả động từ (quyết định làm gì) và danh từ (một quyết định)."}, {"hanzi": "解决", "pinyin": "jiějué", "vi": "Giải quyết", "ex": "这个问题已经解决了。", "exP": "Zhège wèntí yǐjīng jiějué le.", "exVi": "Vấn đề này đã được giải quyết rồi.", "tip": "Thường đi với tân ngữ 问题 (vấn đề) hoặc 困难 (khó khăn)."}, {"hanzi": "认真", "pinyin": "rènzhēn", "vi": "Nghiêm túc / Chăm chỉ", "ex": "他工作非常认真。", "exP": "Tā gōngzuò fēicháng rènzhēn.", "exVi": "Anh ấy làm việc vô cùng nghiêm túc.", "tip": "Thường đứng trước động từ làm trạng ngữ: 认真学习."}, {"hanzi": "经验", "pinyin": "jīngyàn", "vi": "Kinh nghiệm", "ex": "他有十年的维修经验。", "exP": "Tā yǒu shí nián de wéixiū jīngyàn.", "exVi": "Anh ấy có 10 năm kinh nghiệm bảo trì.", "tip": "Hay đi với 丰富 (phong phú) hoặc 积累 (tích lũy)."}, {"hanzi": "安排", "pinyin": "ānpái", "vi": "Sắp xếp", "ex": "请帮我安排会议时间。", "exP": "Qǐng bāng wǒ ānpái huìyì shíjiān.", "exVi": "Làm ơn giúp tôi sắp xếp lịch họp.", "tip": "Dùng cho thời gian, công việc, nhân sự."}]}, {"id": "hsk3-2", "hsk": 3, "tier": "Sơ cấp", "title": "Cảm xúc & Giao tiếp", "icon": "💬", "words": [{"hanzi": "担心", "pinyin": "dānxīn", "vi": "Lo lắng", "ex": "别担心，一切都会好的。", "exP": "Bié dānxīn, yíqiè dōu huì hǎo de.", "exVi": "Đừng lo lắng, mọi chuyện rồi sẽ ổn thôi.", "tip": "担 (gánh) + 心 (tim) = mang nặng trong lòng."}, {"hanzi": "满意", "pinyin": "mǎnyì", "vi": "Hài lòng", "ex": "客户对结果很满意。", "exP": "Kèhù duì jiéguǒ hěn mǎnyì.", "exVi": "Khách hàng rất hài lòng với kết quả.", "tip": "Cấu trúc: 对 + A + 满意 (hài lòng với A)."}, {"hanzi": "关心", "pinyin": "guānxīn", "vi": "Quan tâm", "ex": "谢谢你一直关心我。", "exP": "Xièxie nǐ yìzhí guānxīn wǒ.", "exVi": "Cảm ơn bạn đã luôn quan tâm đến tôi.", "tip": "Có thể mang trực tiếp tân ngữ phía sau."}, {"hanzi": "习惯", "pinyin": "xíguàn", "vi": "Thói quen / Quen với", "ex": "我已经习惯早起了。", "exP": "Wǒ yǐjīng xíguàn zǎoqǐ le.", "exVi": "Tôi đã quen với việc dậy sớm rồi.", "tip": "养成好习惯 = hình thành thói quen tốt."}, {"hanzi": "影响", "pinyin": "yǐngxiǎng", "vi": "Ảnh hưởng", "ex": "熬夜会影响健康。", "exP": "Áoyè huì yǐngxiǎng jiànkāng.", "exVi": "Thức khuya sẽ ảnh hưởng đến sức khỏe.", "tip": "影 (cái bóng) + 响 (tiếng vang)."}]}, {"id": "hsk3-3", "hsk": 3, "tier": "Sơ cấp", "title": "Môi trường & Cuộc sống", "icon": "🌿", "words": [{"hanzi": "环境", "pinyin": "huánjìng", "vi": "Môi trường", "ex": "我们要保护自然环境。", "exP": "Wǒmen yào bǎohù zìrán huánjìng.", "exVi": "Chúng ta phải bảo vệ môi trường tự nhiên.", "tip": "Dùng cho cả thiên nhiên lẫn môi trường làm việc (工作环境)."}, {"hanzi": "变化", "pinyin": "biànhuà", "vi": "Thay đổi / Biến hóa", "ex": "这座城市变化很大。", "exP": "Zhè zuò chéngshì biànhuà hěn dà.", "exVi": "Thành phố này thay đổi rất nhiều.", "tip": "Hán Việt: biến hóa."}, {"hanzi": "方便", "pinyin": "fāngbiàn", "vi": "Thuận tiện", "ex": "网上购物非常方便。", "exP": "Wǎngshàng gòuwù fēicháng fāngbiàn.", "exVi": "Mua sắm trực tuyến vô cùng thuận tiện.", "tip": "Chữ 便 ở đây đọc là biàn (khác với 便宜 piányi)."}, {"hanzi": "注意", "pinyin": "zhùyì", "vi": "Chú ý", "ex": "操作机器时要注意安全。", "exP": "Cāozuò jīqì shí yào zhùyì ānquán.", "exVi": "Khi vận hành máy móc phải chú ý an toàn.", "tip": "Cụm rất hay gặp ở nhà máy: 注意安全."}, {"hanzi": "选择", "pinyin": "xuǎnzé", "vi": "Lựa chọn", "ex": "这是一个明智的选择。", "exP": "Zhè shì yígè míngzhì de xuǎnzé.", "exVi": "Đây là một lựa chọn sáng suốt.", "tip": "Vừa là động từ vừa là danh từ."}]}, {"id": "hsk4-1", "hsk": 4, "tier": "Trung cấp", "title": "Kỹ năng & Công sở", "icon": "🏢", "words": [{"hanzi": "负责", "pinyin": "fùzé", "vi": "Phụ trách / Chịu trách nhiệm", "ex": "我负责车间的设备维护。", "exP": "Wǒ fùzé chējiān de shèbèi wéihù.", "exVi": "Tôi phụ trách bảo trì thiết bị của xưởng.", "tip": "Cấu trúc: 对…负责 (chịu trách nhiệm về…)."}, {"hanzi": "效率", "pinyin": "xiàolǜ", "vi": "Hiệu suất", "ex": "新方法大大提高了效率。", "exP": "Xīn fāngfǎ dàdà tígāo le xiàolǜ.", "exVi": "Phương pháp mới nâng cao hiệu suất đáng kể.", "tip": "Hay đi với động từ 提高 (nâng cao)."}, {"hanzi": "沟通", "pinyin": "gōutōng", "vi": "Giao tiếp / Trao đổi", "ex": "团队之间需要多沟通。", "exP": "Tuánduì zhījiān xūyào duō gōutōng.", "exVi": "Giữa các nhóm cần trao đổi nhiều hơn.", "tip": "Hán Việt: câu thông (khơi thông hiểu biết)."}, {"hanzi": "严格", "pinyin": "yángé", "vi": "Nghiêm ngặt", "ex": "安全规范必须严格执行。", "exP": "Ānquán guīfàn bìxū yángé zhíxíng.", "exVi": "Quy định an toàn bắt buộc thực thi nghiêm ngặt.", "tip": "Thường đi với 要求 (yêu cầu) hoặc 执行 (thực thi)."}, {"hanzi": "总结", "pinyin": "zǒngjié", "vi": "Tổng kết", "ex": "月底我们要做工作总结。", "exP": "Yuèdǐ wǒmen yào zuò gōngzuò zǒngjié.", "exVi": "Cuối tháng chúng tôi phải làm tổng kết công việc.", "tip": "总结经验 = đúc kết kinh nghiệm."}]}, {"id": "hsk4-2", "hsk": 4, "tier": "Trung cấp", "title": "Kinh tế & Tiêu dùng", "icon": "💳", "words": [{"hanzi": "经济", "pinyin": "jīngjì", "vi": "Kinh tế", "ex": "近年来经济发展很快。", "exP": "Jìnniánlái jīngjì fāzhǎn hěn kuài.", "exVi": "Những năm gần đây kinh tế phát triển rất nhanh.", "tip": "Cũng có nghĩa tính từ là 'tiết kiệm, kinh tế'."}, {"hanzi": "质量", "pinyin": "zhìliàng", "vi": "Chất lượng", "ex": "产品的质量是第一位的。", "exP": "Chǎnpǐn de zhìliàng shì dì-yī wèi de.", "exVi": "Chất lượng sản phẩm là ưu tiên số một.", "tip": "保证质量 = đảm bảo chất lượng."}, {"hanzi": "竞争", "pinyin": "jìngzhēng", "vi": "Cạnh tranh", "ex": "市场竞争越来越激烈。", "exP": "Shìchǎng jìngzhēng yuèláiyuè jīliè.", "exVi": "Cạnh tranh thị trường ngày càng khốc liệt.", "tip": "竞争力 = năng lực cạnh tranh."}, {"hanzi": "节约", "pinyin": "jiéyuē", "vi": "Tiết kiệm", "ex": "请大家注意节约用电。", "exP": "Qǐng dàjiā zhùyì jiéyuē yòngdiàn.", "exVi": "Mọi người chú ý tiết kiệm điện.", "tip": "Dùng cho tài nguyên (điện, nước, thời gian, chi phí)."}, {"hanzi": "收入", "pinyin": "shōurù", "vi": "Thu nhập", "ex": "他的收入比以前高了。", "exP": "Tā de shōurù bǐ yǐqián gāo le.", "exVi": "Thu nhập của anh ấy cao hơn trước rồi.", "tip": "Trái nghĩa là 支出 (chi tiêu)."}]}, {"id": "hsk4-3", "hsk": 4, "tier": "Trung cấp", "title": "Công nghệ & Đời sống", "icon": "📱", "words": [{"hanzi": "技术", "pinyin": "jìshù", "vi": "Kỹ thuật / Công nghệ", "ex": "这项新技术非常实用。", "exP": "Zhè xiàng xīn jìshù fēicháng shíyòng.", "exVi": "Công nghệ mới này vô cùng thực dụng.", "tip": "Lượng từ hay dùng: 项 (xiàng)."}, {"hanzi": "软件", "pinyin": "ruǎnjiàn", "vi": "Phần mềm", "ex": "这款学习软件支持离线。", "exP": "Zhè kuǎn xuéxí ruǎnjiàn zhīchí líxiàn.", "exVi": "Phần mềm học tập này hỗ trợ ngoại tuyến.", "tip": "Trái nghĩa là 硬件 (phần cứng)."}, {"hanzi": "数据", "pinyin": "shùjù", "vi": "Dữ liệu", "ex": "请定期备份重要数据。", "exP": "Qǐng dìngqī bèifèn zhòngyào shùjù.", "exVi": "Vui lòng sao lưu định kỳ dữ liệu quan trọng.", "tip": "大数据 = dữ liệu lớn (Big Data)."}, {"hanzi": "适应", "pinyin": "shìyìng", "vi": "Thích nghi", "ex": "他很快适应了新系统。", "exP": "Tā hěn kuài shìyìng le xīn xìtǒng.", "exVi": "Anh ấy nhanh chóng thích nghi với hệ thống mới.", "tip": "Trực tiếp cộng tân ngữ, không cần giới từ."}, {"hanzi": "丰富", "pinyin": "fēngfù", "vi": "Phong phú", "ex": "这个应用的内容很丰富。", "exP": "Zhège yìngyòng de nèiróng hěn fēngfù.", "exVi": "Nội dung của ứng dụng này rất phong phú.", "tip": "Có thể làm động từ: 丰富知识 (làm phong phú kiến thức)."}]}, {"id": "hsk5-1", "hsk": 5, "tier": "Trung cấp", "title": "Sản xuất & Kỹ thuật", "icon": "⚙️", "words": [{"hanzi": "设备", "pinyin": "shèbèi", "vi": "Thiết bị", "ex": "自动化设备需要定期保养。", "exP": "Zìdònghuà shèbèi xūyào dìngqī bǎoyǎng.", "exVi": "Thiết bị tự động hóa cần bảo dưỡng định kỳ.", "tip": "Từ cốt lõi trong môi trường nhà xưởng công nghiệp."}, {"hanzi": "故障", "pinyin": "gùzhàng", "vi": "Sự cố / Hỏng hóc", "ex": "技术人员正在排查故障。", "exP": "Jìshù rényuán zhèngzài páichá gùzhàng.", "exVi": "Kỹ thuật viên đang kiểm tra loại trừ sự cố.", "tip": "排查故障 = rà soát tìm lỗi máy móc."}, {"hanzi": "标准", "pinyin": "biāozhǔn", "vi": "Tiêu chuẩn", "ex": "所有零件必须符合标准。", "exP": "Suǒyǒu língjiàn bìxū fúhé biāozhǔn.", "exVi": "Tất cả linh kiện phải đạt tiêu chuẩn.", "tip": "符合标准 = đáp ứng tiêu chuẩn."}, {"hanzi": "改进", "pinyin": "gǎijìn", "vi": "Cải tiến", "ex": "我们需要改进生产流程。", "exP": "Wǒmen xūyào gǎijìn shēngchǎn liúchéng.", "exVi": "Chúng ta cần cải tiến quy trình sản xuất.", "tip": "改 (sửa) + 进 (tiến lên) = làm cho tốt hơn."}, {"hanzi": "维修", "pinyin": "wéixiū", "vi": "Bảo trì / Sửa chữa", "ex": "这台注塑机正在维修中。", "exP": "Zhè tái zhùsùjī zhèngzài wéixiū zhōng.", "exVi": "Máy ép nhựa này đang được sửa chữa.", "tip": "Dùng cho máy móc, thiết bị công nghiệp, xe cộ."}]}, {"id": "hsk5-2", "hsk": 5, "tier": "Trung cấp", "title": "Tư duy & Phân tích", "icon": "🧠", "words": [{"hanzi": "分析", "pinyin": "fēnxī", "vi": "Phân tích", "ex": "先分析原因，再找对策。", "exP": "Xiān fēnxī yuányīn, zài zhǎo duìcè.", "exVi": "Phân tích nguyên nhân trước, rồi mới tìm đối sách.", "tip": "Hán Việt: phân tích."}, {"hanzi": "判断", "pinyin": "pànduàn", "vi": "Phán đoán", "ex": "根据数据做出准确判断。", "exP": "Gēnjù shùjù zuòchū zhǔnquè pànduàn.", "exVi": "Dựa vào dữ liệu để đưa ra phán đoán chính xác.", "tip": "做出判断 = đưa ra nhận định/phán đoán."}, {"hanzi": "趋势", "pinyin": "qūshì", "vi": "Xu hướng", "ex": "人工智能是未来的趋势。", "exP": "Réngōng zhìnéng shì wèilái de qūshì.", "exVi": "Trí tuệ nhân tạo là xu hướng của tương lai.", "tip": "发展趋势 = xu thế phát triển."}, {"hanzi": "原则", "pinyin": "yuánzé", "vi": "Nguyên tắc", "ex": "安全第一是我们的原则。", "exP": "Ānquán dì-yī shì wǒmen de yuánzé.", "exVi": "An toàn là trên hết là nguyên tắc của chúng tôi.", "tip": "坚持原则 = kiên trì nguyên tắc."}, {"hanzi": "逻辑", "pinyin": "luóji", "vi": "Logic", "ex": "你的发言非常有逻辑。", "exP": "Nǐ de fāyán fēicháng yǒu luóji.", "exVi": "Bài phát biểu của bạn rất có logic.", "tip": "Từ phiên âm từ tiếng Anh 'logic'."}]}, {"id": "hsk5-3", "hsk": 5, "tier": "Trung cấp", "title": "Văn hóa & Xã hội", "icon": "🏮", "words": [{"hanzi": "传统", "pinyin": "chuántǒng", "vi": "Truyền thống", "ex": "春节是最重要的传统节日。", "exP": "Chūnjié shì zuì zhòngyào de chuántǒng jiérì.", "exVi": "Tết Nguyên đán là ngày lễ truyền thống quan trọng nhất.", "tip": "Trái nghĩa với 现代 (hiện đại)."}, {"hanzi": "现象", "pinyin": "xiànxiàng", "vi": "Hiện tượng", "ex": "这种社会现象值得关注。", "exP": "Zhè zhǒng shèhuì xiànxiàng zhídé guānzhù.", "exVi": "Hiện tượng xã hội này đáng được quan tâm.", "tip": "Hán Việt: hiện tượng."}, {"hanzi": "尊重", "pinyin": "zūnzhòng", "vi": "Tôn trọng", "ex": "互相尊重是合作的基础。", "exP": "Hùxiāng zūnzhòng shì hézuò de jīchǔ.", "exVi": "Tôn trọng lẫn nhau là nền tảng của sự hợp tác.", "tip": "尊重他人的意见 = tôn trọng ý kiến người khác."}, {"hanzi": "独立", "pinyin": "dúlì", "vi": "Độc lập", "ex": "他能独立完成整个项目。", "exP": "Tā néng dúlì wánchéng zhěnggè xiàngmù.", "exVi": "Anh ấy có thể độc lập hoàn thành cả dự án.", "tip": "独立思考 = tư duy độc lập."}, {"hanzi": "价值", "pinyin": "jiàzhí", "vi": "Giá trị", "ex": "学习新技能能提升个人价值。", "exP": "Xuéxí xīn jìnéng néng tíshēng gèrén jiàzhí.", "exVi": "Học kỹ năng mới có thể nâng cao giá trị bản thân.", "tip": "有价值 = có giá trị."}]}, {"id": "hsk6-1", "hsk": 6, "tier": "Trung cấp", "title": "Quản trị & Chiến lược", "icon": "📊", "words": [{"hanzi": "协调", "pinyin": "xiétiáo", "vi": "Điều phối / Phối hợp", "ex": "他擅长协调各部门的工作。", "exP": "Tā shàncháng xiétiáo gè bùmén de gōngzuò.", "exVi": "Anh ấy giỏi điều phối công việc giữa các bộ phận.", "tip": "Dùng nhiều trong quản lý cấp trung và cấp cao."}, {"hanzi": "监督", "pinyin": "jiāndū", "vi": "Giám sát", "ex": "专员负责监督现场安全。", "exP": "Zhuānyuán fùzé jiāndū xiànchǎng ānquán.", "exVi": "Chuyên viên phụ trách giám sát an toàn hiện trường.", "tip": "Hán Việt: giám đốc (hành động giám sát đôn đốc)."}, {"hanzi": "评估", "pinyin": "pínggū", "vi": "Đánh giá (rủi ro/giá trị)", "ex": "开工前必须进行风险评估。", "exP": "Kāigōng qián bìxū jìnxíng fēngxiǎn pínggū.", "exVi": "Trước khi khởi công phải đánh giá rủi ro.", "tip": "风险评估 = đánh giá rủi ro."}, {"hanzi": "优化", "pinyin": "yōuhuà", "vi": "Tối ưu hóa", "ex": "我们不断优化算法和体验。", "exP": "Wǒmen búduàn yōuhuà suànfǎ hé tǐyàn.", "exVi": "Chúng tôi không ngừng tối ưu hóa thuật toán và trải nghiệm.", "tip": "Từ khóa quen thuộc trong cả sản xuất lẫn lập trình."}, {"hanzi": "贯彻", "pinyin": "guànchè", "vi": "Quán triệt / Thực hiện triệt để", "ex": "全面贯彻安全生产制度。", "exP": "Quánmiàn guànchè ānquán shēngchǎn zhìdù.", "exVi": "Quán triệt toàn diện chế độ sản xuất an toàn.", "tip": "Thường đi kèm 落实 (guànchè luòshí)."}]}, {"id": "hsk6-2", "hsk": 6, "tier": "Trung cấp", "title": "Pháp lý & An toàn", "icon": "🛡️", "words": [{"hanzi": "隐患", "pinyin": "yǐnhuàn", "vi": "Mối nguy tiềm ẩn", "ex": "及时消除电气火灾隐患。", "exP": "Jíshí xiāochú diànqì huǒzāi yǐnhuàn.", "exVi": "Kịp thời loại trừ mối nguy cháy nổ điện.", "tip": "安全隐患 = nguy cơ mất an toàn tiềm ẩn."}, {"hanzi": "规范", "pinyin": "guīfàn", "vi": "Quy phạm / Chuẩn mực", "ex": "操作流程必须高度规范。", "exP": "Cāozuò liúchéng bìxū gāodù guīfàn.", "exVi": "Quy trình thao tác phải đạt chuẩn mực cao.", "tip": "Vừa là danh từ vừa là động từ/tính từ."}, {"hanzi": "保障", "pinyin": "bǎozhàng", "vi": "Bảo đảm / Che chở", "ex": "完善的制度保障员工权益。", "exP": "Wánshàn de zhìdù bǎozhàng yuángōng quányì.", "exVi": "Chế độ hoàn thiện bảo đảm quyền lợi nhân viên.", "tip": "Trang trọng hơn 保证."}, {"hanzi": "维护", "pinyin": "wéihù", "vi": "Duy trì / Bảo vệ / Bảo trì", "ex": "维护系统稳定运行。", "exP": "Wéihù xìtǒng wěndìng yùnxíng.", "exVi": "Duy trì hệ thống vận hành ổn định.", "tip": "Dùng cho cả thiết bị, phần mềm lẫn trật tự."}, {"hanzi": "追究", "pinyin": "zhuījiū", "vi": "Truy cứu", "ex": "违规操作将追究责任。", "exP": "Wéiguī cāozuò jiāng zhuījiū zérèn.", "exVi": "Thao tác sai quy định sẽ bị truy cứu trách nhiệm.", "tip": "Hay đi với 责任 (trách nhiệm)."}]}, {"id": "hsk6-3", "hsk": 6, "tier": "Trung cấp", "title": "Thành ngữ HSK 6", "icon": "📜", "words": [{"hanzi": "循序渐进", "pinyin": "xúnxù jiànjìn", "vi": "Từng bước tiến lên theo trình tự", "ex": "学语言要循序渐进。", "exP": "Xué yǔyán yào xúnxù jiànjìn.", "exVi": "Học ngôn ngữ phải tiến từng bước theo trình tự.", "tip": "Thành ngữ cực hay khi nói về phương pháp học tập."}, {"hanzi": "精益求精", "pinyin": "jīngyì qiújīng", "vi": "Đã tốt lại càng muốn tốt hơn", "ex": "工匠精神就是精益求精。", "exP": "Gōngjiàng jīngshén jiùshì jīngyì qiújīng.", "exVi": "Tinh thần nghệ nhân chính là không ngừng hoàn thiện.", "tip": "Hán Việt: tinh ích cầu tinh."}, {"hanzi": "举一反三", "pinyin": "jǔyī fǎnsān", "vi": "Học một biết mười (suy rộng)", "ex": "善于举一反三进步更快。", "exP": "Shànyú jǔyī fǎnsān jìnbù gèng kuài.", "exVi": "Giỏi suy luận mở rộng sẽ tiến bộ nhanh hơn.", "tip": "Nêu ra 1 ví dụ mà suy ra được 3 điều tương tự."}, {"hanzi": "防患未然", "pinyin": "fánghuàn wèirán", "vi": "Phòng bệnh hơn chữa bệnh", "ex": "安全管理贵在防患未然。", "exP": "Ānquán guǎnlǐ guì zài fánghuàn wèirán.", "exVi": "Quản lý an toàn quý nhất là phòng ngừa từ sớm.", "tip": "Phòng trừ tai họa trước khi nó xảy ra."}, {"hanzi": "实事求是", "pinyin": "shíshì qiúshì", "vi": "Thực sự cầu thị (tôn trọng sự thật)", "ex": "报告数据必须实事求是。", "exP": "Bàogào shùjù bìxū shíshì qiúshì.", "exVi": "Dữ liệu báo cáo phải hoàn toàn trung thực.", "tip": "Dựa vào sự việc thực tế để tìm ra chân lý."}]}, {"id": "hsk7-1", "hsk": 7, "tier": "Cao cấp", "title": "Học thuật & Nghiên cứu", "icon": "🎓", "words": [{"hanzi": "阐述", "pinyin": "chǎnshù", "vi": "Trình bày tường tận / Luận giải", "ex": "论文系统阐述了核心观点。", "exP": "Lùnwén xìtǒng chǎnshù le héxīn guāndiǎn.", "exVi": "Luận văn đã luận giải có hệ thống quan điểm cốt lõi.", "tip": "Văn phong viết học thuật và báo cáo chuyên sâu."}, {"hanzi": "严谨", "pinyin": "yánjǐn", "vi": "Chặt chẽ / Nghiêm ngặt (học thuật)", "ex": "实验设计必须科学严谨。", "exP": "Shíyàn shèjì bìxū kēxué yánjǐn.", "exVi": "Thiết kế thí nghiệm phải khoa học và chặt chẽ.", "tip": "Thường miêu tả thái độ nghiên cứu hoặc lập luận."}, {"hanzi": "剖析", "pinyin": "pōuxī", "vi": "Mổ xẻ / Phân tích sâu sắc", "ex": "深入剖析故障的根本原因。", "exP": "Shēnrù pōuxī gùzhàng de gēnběn yuányīn.", "exVi": "Phân tích sâu sắc nguyên nhân gốc rễ của sự cố.", "tip": "Chú ý phát âm pōu (thanh 1), không đọc pāo."}, {"hanzi": "论证", "pinyin": "lùnzhèng", "vi": "Luận chứng / Chứng minh", "ex": "这一方案经过了充分论证。", "exP": "Zhè yì fāng'àn jīngguò le chōngfèn lùnzhèng.", "exVi": "Phương án này đã trải qua luận chứng đầy đủ.", "tip": "Dùng trong phản biện kỹ thuật và khoa học."}, {"hanzi": "契合", "pinyin": "qìhé", "vi": "Khớp nhau / Ăn khớp hoàn toàn", "ex": "新设计高度契合用户需求。", "exP": "Xīn shèjì gāodù qìhé yònghù xūqiú.", "exVi": "Thiết kế mới ăn khớp sâu sắc với nhu cầu người dùng.", "tip": "Trang trọng hơn 符合."}]}, {"id": "hsk7-2", "hsk": 7, "tier": "Cao cấp", "title": "Công nghiệp 4.0 & Tự động hóa", "icon": "🤖", "words": [{"hanzi": "迭代", "pinyin": "diédài", "vi": "Lặp lại nâng cấp (Iteration)", "ex": "产品通过快速迭代占领市场。", "exP": "Chǎnpǐn tōngguò kuàisù diédài zhànlǐng shìchǎng.", "exVi": "Sản phẩm chiếm lĩnh thị trường nhờ nâng cấp lặp nhanh.", "tip": "Từ khóa vàng của giới công nghệ & phát triển phần mềm."}, {"hanzi": "赋能", "pinyin": "fùnéng", "vi": "Trao quyền / Tăng cường năng lực", "ex": "人工智能正在赋能制造业。", "exP": "Réngōng zhìnéng zhèngzài fùnéng zhìzàoyè.", "exVi": "AI đang tăng cường năng lực cho ngành sản xuất.", "tip": "Xuất hiện dày đặc trong báo cáo kinh tế – công nghệ hiện đại."}, {"hanzi": "精度", "pinyin": "jīngdù", "vi": "Độ chính xác", "ex": "伺服系统大幅提升了加工精度。", "exP": "Sìfú xìtǒng dàfú tíshēng le jiāgōng jīngdù.", "exVi": "Hệ thống servo nâng cao vượt bậc độ chính xác gia công.", "tip": "高精度 = độ chính xác cao."}, {"hanzi": "冗余", "pinyin": "rǒngyú", "vi": "Dự phòng / Dư thừa (hệ thống)", "ex": "关键控制器采用双冗余设计。", "exP": "Guānjiàn kòngzhìqì cǎiyòng shuāng rǒngyú shèjì.", "exVi": "Bộ điều khiển trọng yếu dùng thiết kế dự phòng kép.", "tip": "Chú ý thanh 3: rǒngyú."}, {"hanzi": "兼容", "pinyin": "jiānróng", "vi": "Tương thích", "ex": "该程序完美兼容多种终端。", "exP": "Gāi chéngxù wánměi jiānróng duōzhǒng zhōngduān.", "exVi": "Chương trình này tương thích hoàn hảo với nhiều thiết bị đầu cuối.", "tip": "向下兼容 = tương thích ngược."}]}, {"id": "hsk8-1", "hsk": 8, "tier": "Cao cấp", "title": "Kinh tế vĩ mô & Tài chính", "icon": "📈", "words": [{"hanzi": "宏观", "pinyin": "hóngguān", "vi": "Vĩ mô", "ex": "投资决策需结合宏观经济形势。", "exP": "Tóuzī juécè xū jiéhé hóngguān jīngjì xíngshì.", "exVi": "Quyết định đầu tư cần kết hợp bối cảnh kinh tế vĩ mô.", "tip": "Trái nghĩa với 微观 (vi mô)."}, {"hanzi": "韧性", "pinyin": "rènxìng", "vi": "Sức chống chịu / Độ bền bỉ", "ex": "供应链展现出强大的韧性。", "exP": "Gōngyìngliàn zhǎnxiàn chū qiángdà de rènxìng.", "exVi": "Chuỗi cung ứng thể hiện sức chống chịu mạnh mẽ.", "tip": "Dùng cho cả vật liệu lẫn kinh tế, tổ chức."}, {"hanzi": "杠杆", "pinyin": "gànggǎn", "vi": "Đòn bẩy", "ex": "合理控制财务杠杆风险。", "exP": "Hélǐ kòngzhì cáiwù gànggǎn fēngxiǎn.", "exVi": "Kiểm soát hợp lý rủi ro đòn bẩy tài chính.", "tip": "Chú ý phát âm: gànggǎn."}, {"hanzi": "壁垒", "pinyin": "bìlěi", "vi": "Rào cản (kỹ thuật/thương mại)", "ex": "核心专利构筑了技术壁垒。", "exP": "Héxīn zhuānlì gòuzhù le jìshù bìlěi.", "exVi": "Bằng sáng chế cốt lõi xây dựng nên rào cản công nghệ.", "tip": "技术壁垒 = hàng rào công nghệ."}, {"hanzi": "研判", "pinyin": "yánpàn", "vi": "Nghiên cứu và nhận định", "ex": "专家对市场走势进行了研判。", "exP": "Zhuānjiā duì shìchǎng zǒushì jìnxíng le yánpàn.", "exVi": "Chuyên gia đã nghiên cứu nhận định xu hướng thị trường.", "tip": "Kết hợp của 研究 (nghiên cứu) và 判断 (phán đoán)."}]}, {"id": "hsk8-2", "hsk": 8, "tier": "Cao cấp", "title": "Văn viết & Hùng biện", "icon": "🖋️", "words": [{"hanzi": "统筹", "pinyin": "tǒngchóu", "vi": "Hoạch định tổng thể", "ex": "统筹兼顾效率与安全。", "exP": "Tǒngchóu jiāngù xiàolǜ yǔ ānquán.", "exVi": "Hoạch định hài hòa giữa hiệu suất và an toàn.", "tip": "Thường đi với 兼顾 (tính đến cả hai mặt) hoặc 规划."}, {"hanzi": "甄别", "pinyin": "zhēnbié", "vi": "Sàng lọc / Thẩm định phân biệt", "ex": "学会甄别网络信息的真伪。", "exP": "Xuéhuì zhēnbié wǎngluò xìnxī de zhēnwěi.", "exVi": "Học cách sàng lọc thật giả của thông tin mạng.", "tip": "Cấp độ cao hơn 区分 và 辨别."}, {"hanzi": "瓶颈", "pinyin": "píngjǐng", "vi": "Điểm nghẽn (nút thắt cổ chai)", "ex": "突破产能瓶颈是当务之急。", "exP": "Tūpò chǎnnéng píngjǐng shì dāngwùzhījí.", "exVi": "Phá vỡ điểm nghẽn năng suất là việc cấp bách.", "tip": "Nghĩa đen là cổ chai (bottleneck)."}, {"hanzi": "斡旋", "pinyin": "wòxuán", "vi": "Hòa giải / Dàn xếp trung gian", "ex": "经过多方斡旋，分歧得以化解。", "exP": "Jīngguò duōfāng wòxuán, fēnqí déyǐ huàjiě.", "exVi": "Qua sự dàn xếp của nhiều bên, bất đồng đã được hóa giải.", "tip": "Từ ngoại giao và đàm phán cao cấp."}, {"hanzi": "践行", "pinyin": "jiànxíng", "vi": "Thực hành / Hiện thực hóa cam kết", "ex": "用实际行动践行绿色理念。", "exP": "Yòng shíjì xíngdòng jiànxíng lǜsè lǐniàn.", "exVi": "Dùng hành động thực tế để hiện thực hóa triết lý xanh.", "tip": "Trang trọng hơn 实行."}]}, {"id": "hsk9-1", "hsk": 9, "tier": "Cao cấp", "title": "Triết lý & Chiến lược đỉnh cao", "icon": "🏔️", "words": [{"hanzi": "高屋建瓴", "pinyin": "gāowū jiànlíng", "vi": "Tầm nhìn bao quát từ trên cao", "ex": "他的战略分析高屋建瓴。", "exP": "Tā de zhànlüè fēnxī gāowū jiànlíng.", "exVi": "Phân tích chiến lược của ông ấy có tầm nhìn bao quát sâu rộng.", "tip": "Nghĩa bóng: đứng ở vị thế cao để nhìn thấu toàn cục."}, {"hanzi": "未雨绸缪", "pinyin": "wèiyǔ chóumóu", "vi": "Lo xa phòng trước (chưa mưa đã lo sửa tổ)", "ex": "企业转型必须未雨绸缪。", "exP": "Qǐyè zhuǎnxíng bìxū wèiyǔ chóumóu.", "exVi": "Chuyển đổi doanh nghiệp nhất định phải tính trước từ sớm.", "tip": "Xuất phát từ Kinh Thi, dùng cực kỳ đắt giá trong văn viết."}, {"hanzi": "革故鼎新", "pinyin": "gégù dǐngxīn", "vi": "Bỏ cũ lập mới / Đổi mới căn bản", "ex": "唯有革故鼎新才能保持领先。", "exP": "Wéiyǒu gégù dǐngxīn cáinéng bǎochí lǐngxiān.", "exVi": "Chỉ có đổi mới căn bản mới giữ vững vị thế dẫn đầu.", "tip": "Hán Việt: cách cố đỉnh tân."}, {"hanzi": "融会贯通", "pinyin": "rónghuì guàntōng", "vi": "Dung hội quán thông (nắm vững toàn diện)", "ex": "将各学科知识融会贯通。", "exP": "Jiāng gè xuékē zhīshi rónghuì guàntōng.", "exVi": "Kết nối nhuần nhuyễn kiến thức của các môn học.", "tip": "Đỉnh cao của việc học và ứng dụng tri thức."}, {"hanzi": "行稳致远", "pinyin": "xíngwěn zhìyuǎn", "vi": "Đi vững mới đi xa được", "ex": "坚持长期主义，方能行稳致远。", "exP": "Jiānchí chángqī zhǔyì, fāngnéng xíngwěn zhìyuǎn.", "exVi": "Kiên trì tư duy dài hạn mới có thể đi vững và đi xa.", "tip": "Cụm từ rất phổ biến trong diễn văn lãnh đạo hiện đại."}]}, {"id": "hsk9-2", "hsk": 9, "tier": "Cao cấp", "title": "Chính luận & Học thuật cao cấp", "icon": "👑", "words": [{"hanzi": "博弈", "pinyin": "bóyì", "vi": "Đấu trí / Lý thuyết trò chơi", "ex": "国际贸易背后是深层利益博弈。", "exP": "Guójì màoyì bèihòu shì shēncéng lìyì bóyì.", "exVi": "Đằng sau thương mại quốc tế là cuộc đấu trí lợi ích sâu xa.", "tip": "博弈论 = Lý thuyết trò chơi (Game Theory)."}, {"hanzi": "范式", "pinyin": "fànshì", "vi": "Hệ mẫu / Mô hình chuẩn (Paradigm)", "ex": "大模型引发了软件开发范式变革。", "exP": "Dàmóxíng yǐnfā le ruǎnjiàn kāifā fànshì biàngé.", "exVi": "Mô hình lớn đã khơi mào cuộc cách mạng hệ mẫu phát triển phần mềm.", "tip": "范式转移 = dịch chuyển hệ mẫu (Paradigm shift)."}, {"hanzi": "掣肘", "pinyin": "chèzhǒu", "vi": "Kìm hãm / Cản trở (kéo khuỷu tay)", "ex": "老旧机制严重掣肘了创新。", "exP": "Lǎojiù jīzhì yánzhòng chèzhǒu le chuàngxīn.", "exVi": "Cơ chế cũ kỹ đã kìm hãm nghiêm trọng sự đổi mới.", "tip": "Nghĩa đen là kéo khuỷu tay người đang viết chữ."}, {"hanzi": "擘画", "pinyin": "bòhuà", "vi": "Hoạch định vĩ mô / Vẽ ra đại cục", "ex": "团队共同擘画未来十年蓝图。", "exP": "Tuánduì gòngtóng bòhuà wèilái shí nián lántú.", "exVi": "Đội ngũ cùng nhau hoạch định bản thiết kế 10 năm tới.", "tip": "Chú ý phát âm bò (thanh 4), văn phong cực kỳ trang trọng."}, {"hanzi": "笃行", "pinyin": "dǔxíng", "vi": "Kiên định thực hành đến cùng", "ex": "博学审问，慎思明辨，笃行。", "exP": "Bóxué shěnwèn, shènsī míngbiàn, dǔxíng.", "exVi": "Học rộng, hỏi kỹ, nghĩ sâu, phân rõ, làm đến cùng.", "tip": "Trích từ Trung Dung — tinh thần học thuật bậc thầy."}]}];
+const allWords = CURRICULUM.flatMap(l => l.words.map(w => ({...w, hsk: l.hsk, lessonTitle: l.title})));
+
+const INITIALS = [
+  ['b','như p (không bật hơi)'],['p','p bật hơi mạnh'],['m','như m'],['f','như ph'],
+  ['d','như t (không bật hơi)'],['t','th bật hơi'],['n','như n'],['l','như l'],
+  ['g','như c/k'],['k','kh bật hơi'],['h','như kh nhẹ'],['j','ch (đầu lưỡi hạ)'],
+  ['q','ch bật hơi'],['x','x nhẹ'],['zh','tr uốn lưỡi'],['ch','tr uốn lưỡi bật hơi'],
+  ['sh','s uốn lưỡi'],['r','r uốn lưỡi nhẹ'],['z','tr (không uốn lưỡi)'],['c','x/tr bật hơi'],['s','x nhẹ']
+];
+const FINALS = [
+  ['a','a'],['o','ua/ô'],['e','ơ/ưa'],['i','i/ư'],['u','u'],['ü','uy tròn môi'],
+  ['ai','ai'],['ei','ây'],['ao','ao'],['ou','âu'],['an','an'],['en','ân'],
+  ['ang','ang'],['eng','âng'],['ong','ung']
+];
+
+// ================= STATE & STORAGE =================
+const STORAGE_KEY = 'pandachinese_pro_offline_v1';
+let db = loadDB();
+let activeHskFilter = 0;
+let fcIndex = 0;
+
+function defaultUserData(name, email, pass) {
+  return {
+    name, email, pass,
+    xp: 0, streak: 1, lastStudy: new Date().toDateString(),
+    completed: [], unlockAll: false, showPinyin: true
+  };
+}
+
+function loadDB() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return {
+    currentUser: 'guest',
+    users: {
+      guest: defaultUserData('Khách dùng thử', 'guest', '')
+    }
+  };
+}
+
+function saveDB() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+  updateHeaderStats();
+}
+
+function getUser() {
+  return db.users[db.currentUser] || db.users.guest;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+// ================= AUDIO (OFFLINE WEB AUDIO + SPEECH) =================
+let audioCtx = null;
+function playToneBeep(type) {
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const now = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    if (type === 'ok') {
+      osc.frequency.setValueAtTime(523.25, now);
+      osc.frequency.exponentialRampToValueAtTime(783.99, now + 0.14);
+      gain.gain.setValueAtTime(0.15, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+      osc.start(now); osc.stop(now + 0.25);
+    } else if (type === 'bad') {
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(220, now);
+      osc.frequency.linearRampToValueAtTime(160, now + 0.22);
+      gain.gain.setValueAtTime(0.12, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+      osc.start(now); osc.stop(now + 0.25);
+    } else if (type === 'win') {
+      [523, 659, 784, 1046].forEach((f, i) => {
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        o.connect(g); g.connect(audioCtx.destination);
+        o.frequency.value = f;
+        g.gain.setValueAtTime(0.12, now + i * 0.09);
+        g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.09 + 0.25);
+        o.start(now + i * 0.09); o.stop(now + i * 0.09 + 0.25);
+      });
+    }
+  } catch(e) {}
+}
+
+function speak(text, slow = false) {
+  if (!('speechSynthesis' in window)) {
+    showToast('Trình duyệt không hỗ trợ đọc giọng nói.');
+    return;
+  }
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'zh-CN';
+  u.rate = slow ? 0.62 : 0.95;
+  window.speechSynthesis.speak(u);
+}
+
+// ================= NAVIGATION & HEADER =================
+function switchTab(tab) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  if (tab === 'write') { initCanvasGrid(); }
+  if (tab === 'review') { renderFlashcard(); renderDict(); }
+  if (tab === 'profile') { renderProfile(); }
+}
+
+function updateHeaderStats() {
+  const u = getUser();
+  document.getElementById('statXp').textContent = u.xp;
+  document.getElementById('statStreak').textContent = u.streak;
+  const pct = Math.round((u.completed.length / CURRICULUM.length) * 100);
+  document.getElementById('progressSummary').textContent = `Hoàn thành ${u.completed.length}/${CURRICULUM.length} bài học (${pct}%) • Tài khoản: ${u.name}`;
+  document.getElementById('btnUnlockAll').textContent = u.unlockAll ? '🔒 Khóa theo lộ trình' : '🔓 Mở khóa tất cả';
+  document.getElementById('settingPinyin').checked = u.showPinyin !== false;
+}
+
+// ================= TAB 1: LEARN PATH =================
+function renderHskFilters() {
+  const row = document.getElementById('hskFilterRow');
+  const chips = [{v:0, l:'Tất cả HSK 1–9'}];
+  for (let i = 1; i <= 9; i++) chips.push({v:i, l:'HSK ' + i});
+  row.innerHTML = chips.map(c =>
+    `<button class="chip ${activeHskFilter===c.v?'active':''}" onclick="setHskFilter(${c.v})">${c.l}</button>`
+  ).join('');
+}
+
+function setHskFilter(v) {
+  activeHskFilter = v;
+  renderHskFilters();
+  renderLessonPath();
+}
+
+function toggleUnlockAll() {
+  const u = getUser();
+  u.unlockAll = !u.unlockAll;
+  saveDB();
+  renderLessonPath();
+  showToast(u.unlockAll ? 'Đã mở khóa toàn bộ HSK 1–9!' : 'Đã bật chế độ học tuần tự.');
+}
+
+function renderLessonPath() {
+  const u = getUser();
+  const wrap = document.getElementById('lessonPath');
+  const list = activeHskFilter === 0 ? CURRICULUM : CURRICULUM.filter(l => l.hsk === activeHskFilter);
+  let html = '';
+  let lastTier = '';
+  list.forEach((lesson) => {
+    if (lesson.tier !== lastTier) {
+      lastTier = lesson.tier;
+      const cls = lesson.tier === 'Trung cấp' ? 'mid' : (lesson.tier === 'Cao cấp' ? 'adv' : '');
+      const range = lesson.tier === 'Sơ cấp' ? 'HSK 1–3' : (lesson.tier === 'Trung cấp' ? 'HSK 4–6' : 'HSK 7–9');
+      html += `<div class="tier-banner ${cls}"><span>Bậc ${lesson.tier} (${range})</span><span>🎯 Chuẩn HSK 3.0</span></div>`;
+    }
+    const globalIdx = CURRICULUM.findIndex(x => x.id === lesson.id);
+    const isDone = u.completed.includes(lesson.id);
+    const isUnlocked = u.unlockAll || globalIdx === 0 || u.completed.includes(CURRICULUM[globalIdx - 1].id);
+    const previewWords = lesson.words.map(w => w.hanzi).join(' • ');
+    html += `
+      <div class="lesson-node ${isDone ? 'done' : ''} ${!isUnlocked ? 'locked' : ''}"
+           onclick="${isUnlocked ? `startLesson('${lesson.id}')` : `showToast('Hoàn thành bài trước hoặc bấm Mở khóa tất cả!')`}">
+        <div class="node-icon">${isDone ? '✓' : lesson.icon}</div>
+        <div class="node-info">
+          <div class="node-meta">HSK ${lesson.hsk} • ${lesson.words.length} từ vựng</div>
+          <div class="node-title">${lesson.title}</div>
+          <div class="node-words hanzi-font">${previewWords}</div>
+        </div>
+        <div style="font-weight:800;color:${isDone ? 'var(--primary-dark)' : 'var(--muted)'};">${isDone ? 'Ôn lại' : (isUnlocked ? 'Học →' : '🔒')}</div>
+      </div>`;
+  });
+  wrap.innerHTML = html;
+}
+
+// ================= INTERACTIVE LESSON & MOCK EXAM =================
+let session = null;
+
+function startLesson(lessonId) {
+  const lesson = CURRICULUM.find(l => l.id === lessonId);
+  if (!lesson) return;
+  const qs = [];
+  lesson.words.forEach((w, idx) => {
+    // 1. Multiple choice or Listening
+    const pool = allWords.filter(x => x.hanzi !== w.hanzi).sort(() => Math.random() - 0.5).slice(0, 3);
+    const opts = [w, ...pool].sort(() => Math.random() - 0.5);
+    if (idx % 2 === 0) {
+      qs.push({ type: 'mcq', word: w, opts });
+    } else {
+      qs.push({ type: 'listen', word: w, opts });
+    }
+  });
+  // 2. Match pairs
+  qs.push({ type: 'match', words: lesson.words.slice(0, 4) });
+  // 3. Sentence builder
+  const sentWord = lesson.words[0];
+  qs.push({ type: 'sentence', word: sentWord });
+  // 4. Speaking practice
+  qs.push({ type: 'speak', word: lesson.words[1] || lesson.words[0] });
+
+  openSession({ mode: 'lesson', lessonId: lesson.id, title: lesson.title, questions: qs, idx: 0, correctCount: 0, showPinyin: getUser().showPinyin !== false });
+}
+
+function startMockExam() {
+  const hsk = parseInt(document.getElementById('examHskSelect').value, 10);
+  let pool = hsk === 0 ? [...allWords] : allWords.filter(w => w.hsk === hsk);
+  pool = pool.sort(() => Math.random() - 0.5).slice(0, 10);
+  const qs = pool.map((w, i) => {
+    const others = allWords.filter(x => x.hanzi !== w.hanzi).sort(() => Math.random() - 0.5).slice(0, 3);
+    return { type: i % 3 === 1 ? 'listen' : 'mcq', word: w, opts: [w, ...others].sort(() => Math.random() - 0.5) };
+  });
+  openSession({ mode: 'exam', title: hsk === 0 ? 'Thi thử HSK 1–9' : 'Thi thử HSK ' + hsk, questions: qs, idx: 0, correctCount: 0, showPinyin: getUser().showPinyin !== false });
+}
+
+function openSession(s) {
+  session = s;
+  document.getElementById('lessonModal').classList.add('open');
+  updateLessonPinyinBtn();
+  renderQuestion();
+}
+
+function closeLesson() {
+  document.getElementById('lessonModal').classList.remove('open');
+  window.speechSynthesis && window.speechSynthesis.cancel();
+  session = null;
+}
+
+function toggleLessonPinyin() {
+  if (!session) return;
+  session.showPinyin = !session.showPinyin;
+  updateLessonPinyinBtn();
+  document.getElementById('lessonBody').classList.toggle('pinyin-hidden', !session.showPinyin);
+}
+
+function updateLessonPinyinBtn() {
+  const btn = document.getElementById('btnTogglePinyin');
+  btn.textContent = session.showPinyin ? 'Pinyin: Bật' : 'Pinyin: Ẩn';
+  document.getElementById('lessonBody').classList.toggle('pinyin-hidden', !session.showPinyin);
+}
+
+function renderQuestion() {
+  const body = document.getElementById('lessonBody');
+  const fb = document.getElementById('feedbackBar');
+  const fbi = document.getElementById('feedbackInner');
+  fb.className = 'feedback-bar';
+
+  if (session.idx >= session.questions.length) {
+    // Completed!
+    document.getElementById('lessonProgress').style.width = '100%';
+    playToneBeep('win');
+    const u = getUser();
+    const earnedXp = session.mode === 'exam' ? session.correctCount * 10 : 50;
+    u.xp += earnedXp;
+    if (session.mode === 'lesson' && !u.completed.includes(session.lessonId)) {
+      u.completed.push(session.lessonId);
+    }
+    const today = new Date().toDateString();
+    if (u.lastStudy !== today) { u.streak += 1; u.lastStudy = today; }
+    saveDB();
+    renderLessonPath();
+
+    body.innerHTML = `
+      <div style="text-align:center;padding:24px 0;">
+        <div style="font-size:4rem;">🎉</div>
+        <h2 style="font-size:1.6rem;margin-top:8px;">Hoàn thành xuất sắc!</h2>
+        <p class="subtext" style="margin-top:6px;">${session.title}</p>
+        <div style="display:flex;justify-content:center;gap:14px;margin:20px 0;">
+          <div class="pill xp" style="font-size:1rem;padding:10px 16px;">+${earnedXp} XP</div>
+          <div class="pill offline" style="font-size:1rem;padding:10px 16px;">Đúng ${session.correctCount}/${session.questions.length}</div>
+        </div>
+      </div>`;
+    fbi.innerHTML = `<button class="btn btn-primary btn-block" onclick="closeLesson()">Quay lại lộ trình</button>`;
+    return;
+  }
+
+  const pct = Math.round((session.idx / session.questions.length) * 100);
+  document.getElementById('lessonProgress').style.width = pct + '%';
+  const q = session.questions[session.idx];
+  session.answered = false;
+
+  if (q.type === 'mcq' || q.type === 'listen') {
+    const isListen = q.type === 'listen';
+    body.innerHTML = `
+      <div><span class="q-badge">${isListen ? '🎧 Luyện nghe' : '📖 Đọc hiểu'} • Câu ${session.idx + 1}/${session.questions.length}</span></div>
+      ${isListen ? '<div style="text-align:center;font-weight:700;margin:10px 0;">Nghe phát âm và chọn nghĩa tiếng Việt đúng:</div>'
+        : `<div class="q-hanzi hanzi-font">${q.word.hanzi}</div><div class="q-pinyin">${q.word.pinyin}</div>`}
+      <div class="audio-row">
+        <button class="btn btn-soft btn-sm" onclick="speak('${q.word.hanzi}', false)">🔊 Đọc thường</button>
+        <button class="btn btn-outline btn-sm" onclick="speak('${q.word.hanzi}', true)">🐢 Đọc chậm</button>
+      </div>
+      <div class="opt-grid">
+        ${q.opts.map((o, i) => `
+          <button class="opt-btn" id="opt-${i}" onclick="checkMcq(${i})">
+            <div>${o.vi}</div>
+          </button>`).join('')}
+      </div>`;
+    fbi.innerHTML = `<div class="subtext" style="text-align:center;">Chọn đáp án đúng để tiếp tục</div>`;
+    if (isListen) setTimeout(() => speak(q.word.hanzi), 250);
+  }
+  else if (q.type === 'match') {
+    session.matchLeft = null;
+    session.matchedPairs = 0;
+    const lefts = [...q.words].sort(() => Math.random() - 0.5);
+    const rights = [...q.words].sort(() => Math.random() - 0.5);
+    body.innerHTML = `
+      <div><span class="q-badge">🧩 Ghép cặp từ • Câu ${session.idx + 1}/${session.questions.length}</span></div>
+      <p class="subtext" style="margin-bottom:14px;">Chọn một chữ Hán bên trái rồi ghép với nghĩa tiếng Việt bên phải.</p>
+      <div class="match-grid">
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          ${lefts.map(w => `<div class="match-card hanzi-font" data-side="L" data-key="${w.hanzi}" onclick="pickMatch(this)">
+            <div style="font-size:1.3rem;">${w.hanzi}</div>
+            <div class="opt-pinyin" style="font-size:0.8rem;color:var(--primary-dark);">${w.pinyin}</div>
+          </div>`).join('')}
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          ${rights.map(w => `<div class="match-card" data-side="R" data-key="${w.hanzi}" onclick="pickMatch(this)">${w.vi}</div>`).join('')}
+        </div>
+      </div>`;
+    fbi.innerHTML = `<div class="subtext" style="text-align:center;">Ghép đủ 4 cặp từ</div>`;
+  }
+  else if (q.type === 'sentence') {
+    const chars = q.word.ex.replace(/[。！？，、]/g, '').split('');
+    // Group into chunks of 2 chars for comfortable assembly
+    const chunks = [];
+    for (let i = 0; i < chars.length; i += 2) chunks.push(chars.slice(i, i + 2).join(''));
+    session.targetSentence = chunks.join('');
+    session.shuffledChunks = [...chunks].sort(() => Math.random() - 0.5);
+    session.pickedIdx = [];
+    body.innerHTML = `
+      <div><span class="q-badge">🧱 Ghép câu • Câu ${session.idx + 1}/${session.questions.length}</span></div>
+      <div style="font-weight:800;font-size:1.1rem;margin-bottom:6px;">"${q.word.exVi}"</div>
+      <div class="audio-row" style="justify-content:flex-start;margin-bottom:12px;">
+        <button class="btn btn-soft btn-sm" onclick="speak('${q.word.ex}')">🔊 Nghe câu mẫu</button>
+      </div>
+      <div class="sentence-box hanzi-font" id="sentBox"><span class="subtext">Bấm các cụm từ bên dưới theo đúng thứ tự...</span></div>
+      <div class="word-bank hanzi-font" id="wordBank"></div>`;
+    renderSentenceTokens();
+    fbi.innerHTML = `<button class="btn btn-primary btn-block" onclick="checkSentence()">Kiểm tra câu</button>`;
+  }
+  else if (q.type === 'speak') {
+    body.innerHTML = `
+      <div><span class="q-badge">🎙️ Luyện nói • Câu ${session.idx + 1}/${session.questions.length}</span></div>
+      <div class="q-hanzi hanzi-font">${q.word.hanzi}</div>
+      <div class="q-pinyin">${q.word.pinyin}</div>
+      <div style="text-align:center;font-weight:700;margin-bottom:16px;">${q.word.vi}</div>
+      <div style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px;">
+        <button class="btn btn-soft" onclick="speak('${q.word.hanzi}')">🔊 Nghe mẫu trước</button>
+        <button class="btn btn-primary" id="btnMic" onclick="startSpeechCheck()">🎙️ Bấm để nói tiếng Trung</button>
+        <div id="speechResult" class="subtext">Nếu dùng offline không có mạng, bạn có thể bấm "Bỏ qua" bên dưới.</div>
+      </div>`;
+    fbi.innerHTML = `<button class="btn btn-outline btn-block" onclick="skipQuestion()">Bỏ qua bài nói →</button>`;
+  }
+}
+
+function checkMcq(idx) {
+  if (session.answered) return;
+  session.answered = true;
+  const q = session.questions[session.idx];
+  const chosen = q.opts[idx];
+  const ok = chosen.hanzi === q.word.hanzi;
+  q.opts.forEach((o, i) => {
+    const el = document.getElementById('opt-' + i);
+    if (o.hanzi === q.word.hanzi) el.classList.add('correct');
+    else if (i === idx && !ok) el.classList.add('wrong');
+  });
+  if (ok) { session.correctCount++; playToneBeep('ok'); } else { playToneBeep('bad'); }
+  showFeedback(ok, q.word);
+}
+
+function pickMatch(el) {
+  const side = el.dataset.side;
+  const key = el.dataset.key;
+  if (side === 'L') {
+    document.querySelectorAll('[data-side="L"]').forEach(x => x.classList.remove('selected'));
+    el.classList.add('selected');
+    session.matchLeft = el;
+    speak(key);
+  } else if (side === 'R' && session.matchLeft) {
+    if (session.matchLeft.dataset.key === key) {
+      session.matchLeft.classList.remove('selected');
+      session.matchLeft.classList.add('matched');
+      el.classList.add('matched');
+      session.matchLeft = null;
+      session.matchedPairs++;
+      playToneBeep('ok');
+      if (session.matchedPairs >= 4) {
+        session.correctCount++;
+        showFeedback(true, { hanzi: 'Tuyệt vời!', pinyin: '', vi: 'Bạn đã ghép đúng toàn bộ cặp từ.', tip: '' });
+      }
+    } else {
+      playToneBeep('bad');
+      showToast('Chưa khớp, thử lại nhé!');
+    }
+  }
+}
+
+function renderSentenceTokens() {
+  const box = document.getElementById('sentBox');
+  const bank = document.getElementById('wordBank');
+  if (session.pickedIdx.length === 0) {
+    box.innerHTML = '<span class="subtext">Bấm các cụm từ bên dưới theo đúng thứ tự...</span>';
+  } else {
+    box.innerHTML = session.pickedIdx.map((origIdx, pos) =>
+      `<span class="token" onclick="removeToken(${pos})">${session.shuffledChunks[origIdx]}</span>`
+    ).join('');
+  }
+  bank.innerHTML = session.shuffledChunks.map((txt, i) =>
+    `<button class="token ${session.pickedIdx.includes(i) ? 'used' : ''}" onclick="addToken(${i})">${txt}</button>`
+  ).join('');
+}
+function addToken(i) { if (!session.pickedIdx.includes(i)) { session.pickedIdx.push(i); renderSentenceTokens(); } }
+function removeToken(pos) { session.pickedIdx.splice(pos, 1); renderSentenceTokens(); }
+function checkSentence() {
+  const q = session.questions[session.idx];
+  const ans = session.pickedIdx.map(i => session.shuffledChunks[i]).join('');
+  const ok = ans === session.targetSentence;
+  if (ok) { session.correctCount++; playToneBeep('ok'); } else { playToneBeep('bad'); }
+  showFeedback(ok, { hanzi: q.word.ex, pinyin: q.word.exP, vi: q.word.exVi, tip: q.word.tip });
+}
+
+function startSpeechCheck() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const resEl = document.getElementById('speechResult');
+  if (!SR) {
+    resEl.textContent = 'Trình duyệt không hỗ trợ nhận diện giọng nói. Hãy bấm Bỏ qua để tiếp tục.';
+    return;
+  }
+  const q = session.questions[session.idx];
+  const rec = new SR();
+  rec.lang = 'zh-CN';
+  rec.interimResults = false;
+  resEl.textContent = '🎙️ Đang nghe... Hãy đọc to: ' + q.word.hanzi;
+  rec.onresult = (e) => {
+    const said = e.results[0][0].transcript;
+    resEl.textContent = 'Bạn đã nói: ' + said;
+    const ok = said.includes(q.word.hanzi) || q.word.hanzi.includes(said);
+    if (ok) { session.correctCount++; playToneBeep('ok'); showFeedback(true, q.word); }
+    else { playToneBeep('bad'); resEl.textContent += ' — Thử nói lại hoặc bấm Bỏ qua nhé.'; }
+  };
+  rec.onerror = () => { resEl.textContent = 'Không nhận được giọng nói (cần mạng cho Speech API). Bạn có thể bấm Bỏ qua.'; };
+  rec.start();
+}
+
+function skipQuestion() {
+  session.idx++;
+  renderQuestion();
+}
+
+function showFeedback(ok, word) {
+  const fb = document.getElementById('feedbackBar');
+  const fbi = document.getElementById('feedbackInner');
+  fb.className = 'feedback-bar ' + (ok ? 'ok' : 'bad');
+  fbi.innerHTML = `
+    <div>
+      <strong style="color:${ok ? 'var(--primary-dark)' : '#b91c1c'};">${ok ? '✅ Chính xác!' : '❌ Chưa đúng rồi!'}</strong>
+      <div class="hanzi-font" style="margin-top:4px;font-weight:700;">${word.hanzi} ${word.pinyin ? '(' + word.pinyin + ')' : ''} — ${word.vi}</div>
+      ${word.tip ? `<div style="font-size:0.84rem;color:var(--muted);margin-top:4px;">💡 Mẹo nhớ: ${word.tip}</div>` : ''}
+    </div>
+    <button class="btn ${ok ? 'btn-primary' : 'btn-danger'} btn-block" onclick="nextQuestion()">Tiếp tục →</button>`;
+}
+
+function nextQuestion() {
+  session.idx++;
+  renderQuestion();
+}
+
+// ================= TAB 2: PINYIN & TONE GAME =================
+const TONE_SAMPLES = [
+  {char:'妈', py:'mā', tone:1}, {char:'麻', py:'má', tone:2}, {char:'马', py:'mǎ', tone:3}, {char:'骂', py:'mà', tone:4},
+  {char:'八', py:'bā', tone:1}, {char:'拔', py:'bá', tone:2}, {char:'把', py:'bǎ', tone:3}, {char:'爸', py:'bà', tone:4},
+  {char:'书', py:'shū', tone:1}, {char:'熟', py:'shú', tone:2}, {char:'数', py:'shǔ', tone:3}, {char:'树', py:'shù', tone:4}
+];
+let currentToneSample = TONE_SAMPLES[0];
+let toneStreakCount = 0;
+
+function initPinyinTab() {
+  document.getElementById('initialsGrid').innerHTML = INITIALS.map(([s, d]) =>
+    `<div class="py-card" onclick="speak('${s}')"><strong>${s}</strong><small>${d}</small></div>`
+  ).join('');
+  document.getElementById('finalsGrid').innerHTML = FINALS.map(([s, d]) =>
+    `<div class="py-card" onclick="speak('${s}')"><strong>${s}</strong><small>${d}</small></div>`
+  ).join('');
+  pickNextToneSample();
+}
+function pickNextToneSample() {
+  currentToneSample = TONE_SAMPLES[Math.floor(Math.random() * TONE_SAMPLES.length)];
+}
+function playToneGameAudio() {
+  speak(currentToneSample.char);
+}
+function guessTone(t) {
+  const hint = document.getElementById('toneGameHint');
+  if (t === currentToneSample.tone) {
+    toneStreakCount++;
+    playToneBeep('ok');
+    hint.innerHTML = `<span style="color:var(--primary-dark);">✅ Đúng! Đó là <b>${currentToneSample.char} (${currentToneSample.py})</b> — Thanh ${t}</span>`;
+    pickNextToneSample();
+    setTimeout(() => speak(currentToneSample.char), 650);
+  } else {
+    toneStreakCount = 0;
+    playToneBeep('bad');
+    hint.innerHTML = `<span style="color:var(--danger);">❌ Sai rồi! Đáp án là <b>${currentToneSample.char} (${currentToneSample.py})</b> — Thanh ${currentToneSample.tone}</span>`;
+  }
+  document.getElementById('toneStreak').textContent = toneStreakCount;
+}
+
+// ================= TAB 3: HANZI STUDIO CANVAS =================
+let canvas, ctx, isDrawing = false, strokes = [], currentStroke = [];
+const INK_COLORS = ['#0f172a', '#dc2626', '#059669', '#2563eb'];
+let inkIdx = 0;
+let showGhost = true;
+let currentWriteChar = '你';
+
+function populateWriteChars() {
+  const hsk = parseInt(document.getElementById('writeHskSelect').value, 10);
+  const words = allWords.filter(w => w.hsk === hsk);
+  const sel = document.getElementById('writeCharSelect');
+  const chars = [];
+  words.forEach(w => {
+    for (const ch of w.hanzi) {
+      if (!chars.find(x => x.ch === ch)) chars.push({ ch, word: w });
+    }
+  });
+  sel.innerHTML = chars.map((c, i) => `<option value="${i}">${c.ch} — trong "${c.word.hanzi}" (${c.word.vi})</option>`).join('');
+  sel.dataset.list = JSON.stringify(chars);
+  selectWriteChar();
+}
+
+function selectWriteChar() {
+  const sel = document.getElementById('writeCharSelect');
+  const list = JSON.parse(sel.dataset.list || '[]');
+  const item = list[sel.value] || list[0];
+  if (!item) return;
+  currentWriteChar = item.ch;
+  document.getElementById('ghostChar').textContent = item.ch;
+  document.getElementById('writeWordInfo').textContent = `${item.word.hanzi} (${item.word.pinyin}) — ${item.word.vi}`;
+  clearCanvas();
+}
+
+function initCanvasGrid() {
+  if (!canvas) {
+    canvas = document.getElementById('hanziCanvas');
+    ctx = canvas.getContext('2d');
+    const getPos = (e) => {
+      const r = canvas.getBoundingClientRect();
+      const pt = e.touches ? e.touches[0] : e;
+      return { x: (pt.clientX - r.left) * (canvas.width / r.width), y: (pt.clientY - r.top) * (canvas.height / r.height) };
+    };
+    const start = (e) => { e.preventDefault(); isDrawing = true; currentStroke = [getPos(e)]; redrawCanvas(); };
+    const move = (e) => { if (!isDrawing) return; e.preventDefault(); currentStroke.push(getPos(e)); redrawCanvas(); };
+    const end = () => { if (!isDrawing) return; isDrawing = false; if (currentStroke.length) strokes.push({ color: INK_COLORS[inkIdx], pts: currentStroke }); currentStroke = []; redrawCanvas(); };
+    canvas.addEventListener('pointerdown', start);
+    canvas.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', end);
+    populateWriteChars();
+  }
+  redrawCanvas();
+}
+
+function drawMiZiGe() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.save();
+  ctx.strokeStyle = '#cbd5e1';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([6, 6]);
+  ctx.beginPath();
+  ctx.moveTo(canvas.width / 2, 0); ctx.lineTo(canvas.width / 2, canvas.height);
+  ctx.moveTo(0, canvas.height / 2); ctx.lineTo(canvas.width, canvas.height / 2);
+  ctx.moveTo(0, 0); ctx.lineTo(canvas.width, canvas.height);
+  ctx.moveTo(canvas.width, 0); ctx.lineTo(0, canvas.height);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function redrawCanvas() {
+  if (!ctx) return;
+  drawMiZiGe();
+  const all = [...strokes, ...(currentStroke.length ? [{ color: INK_COLORS[inkIdx], pts: currentStroke }] : [])];
+  all.forEach(s => {
+    ctx.save();
+    ctx.strokeStyle = s.color;
+    ctx.lineWidth = 11;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    s.pts.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+    ctx.stroke();
+    ctx.restore();
+  });
+}
+function clearCanvas() { strokes = []; currentStroke = []; redrawCanvas(); }
+function undoStroke() { strokes.pop(); redrawCanvas(); }
+function toggleGhost() { showGhost = !showGhost; document.getElementById('ghostChar').style.display = showGhost ? 'grid' : 'none'; }
+function cycleInkColor() { inkIdx = (inkIdx + 1) % INK_COLORS.length; showToast('Đã đổi màu mực viết!'); }
+
+// ================= TAB 4: FLASHCARDS & DICTIONARY =================
+function renderFlashcard() {
+  const w = allWords[fcIndex];
+  document.getElementById('fcCard').classList.remove('flipped');
+  document.getElementById('fcCounter').textContent = `${fcIndex + 1} / ${allWords.length}`;
+  document.getElementById('fcLevel').textContent = 'HSK ' + w.hsk;
+  document.getElementById('fcHanzi').textContent = w.hanzi;
+  document.getElementById('fcPinyin').textContent = w.pinyin;
+  document.getElementById('fcVi').textContent = w.vi;
+  document.getElementById('fcEx').textContent = w.ex;
+  document.getElementById('fcExVi').textContent = w.exVi;
+  document.getElementById('fcTip').textContent = '💡 ' + w.tip;
+}
+function flipCard() { document.getElementById('fcCard').classList.toggle('flipped'); }
+function nextCard() { fcIndex = (fcIndex + 1) % allWords.length; renderFlashcard(); }
+function prevCard() { fcIndex = (fcIndex - 1 + allWords.length) % allWords.length; renderFlashcard(); }
+
+function renderDict() {
+  const q = (document.getElementById('dictSearch').value || '').toLowerCase().trim();
+  const hsk = parseInt(document.getElementById('dictHsk').value, 10);
+  const filtered = allWords.filter(w =>
+    (hsk === 0 || w.hsk === hsk) &&
+    (!q || w.hanzi.includes(q) || w.pinyin.toLowerCase().includes(q) || w.vi.toLowerCase().includes(q))
+  );
+  const box = document.getElementById('dictList');
+  if (!filtered.length) { box.innerHTML = '<p class="subtext" style="padding:12px;">Không tìm thấy từ phù hợp.</p>'; return; }
+  box.innerHTML = filtered.map(w => `
+    <div class="dict-item">
+      <div>
+        <span class="badge">HSK ${w.hsk}</span>
+        <strong class="hanzi-font" style="font-size:1.2rem;margin-left:6px;">${w.hanzi}</strong>
+        <span style="color:var(--primary-dark);font-weight:600;margin-left:6px;">${w.pinyin}</span>
+        <div class="subtext">${w.vi}</div>
+      </div>
+      <button class="btn btn-soft btn-sm" onclick="speak('${w.hanzi}')">🔊</button>
+    </div>`).join('');
+}
+
+// ================= TAB 5: ACCOUNT & OFFLINE BACKUP =================
+function renderProfile() {
+  const u = getUser();
+  const card = document.getElementById('authCard');
+  if (db.currentUser === 'guest') {
+    card.innerHTML = `
+      <h2>Tài khoản cá nhân (Lưu trên máy)</h2>
+      <p class="subtext" style="margin-bottom:12px;">Đang dùng chế độ <b>Khách</b>. Đăng ký hoặc đăng nhập để lưu tiến độ riêng cho từng người trên cùng một máy (tiến độ khách sẽ tự động được gộp vào tài khoản mới).</p>
+      <input class="input" id="authName" placeholder="Tên hiển thị (chỉ cần khi đăng ký)" />
+      <input class="input" id="authEmail" placeholder="Tên đăng nhập hoặc Email" />
+      <input class="input" id="authPass" type="password" placeholder="Mật khẩu" />
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="registerAccount()">Đăng ký tài khoản</button>
+        <button class="btn btn-outline" onclick="loginAccount()">Đăng nhập</button>
+      </div>`;
+  } else {
+    card.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+        <div>
+          <h2>👤 ${u.name}</h2>
+          <p class="subtext">Tài khoản: ${u.email} • Đã lưu cục bộ (Offline)</p>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="logoutAccount()">Đăng xuất</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px;">
+        <div style="background:var(--bg);padding:12px;border-radius:12px;text-align:center;">
+          <div style="font-size:1.4rem;font-weight:800;color:var(--primary-dark);">${u.completed.length}/${CURRICULUM.length}</div>
+          <div class="subtext">Bài đã học</div>
+        </div>
+        <div style="background:var(--bg);padding:12px;border-radius:12px;text-align:center;">
+          <div style="font-size:1.4rem;font-weight:800;color:#b45309;">${u.xp}</div>
+          <div class="subtext">Tổng XP</div>
+        </div>
+        <div style="background:var(--bg);padding:12px;border-radius:12px;text-align:center;">
+          <div style="font-size:1.4rem;font-weight:800;color:#c2410c;">${u.streak} 🔥</div>
+          <div class="subtext">Chuỗi ngày</div>
+        </div>
+      </div>`;
+  }
+}
+
+function registerAccount() {
+  const name = document.getElementById('authName').value.trim() || 'Học viên';
+  const email = document.getElementById('authEmail').value.trim().toLowerCase();
+  const pass = document.getElementById('authPass').value;
+  if (!email || !pass) { showToast('Vui lòng nhập tên đăng nhập và mật khẩu!'); return; }
+  if (db.users[email]) { showToast('Tài khoản đã tồn tại, hãy bấm Đăng nhập!'); return; }
+  const guest = db.users.guest;
+  const newUser = defaultUserData(name, email, pass);
+  // Merge guest progress
+  newUser.xp = guest.xp;
+  newUser.completed = [...guest.completed];
+  newUser.unlockAll = guest.unlockAll;
+  db.users[email] = newUser;
+  db.currentUser = email;
+  saveDB();
+  renderProfile();
+  renderLessonPath();
+  showToast('Đăng ký thành công & đã gộp tiến độ học!');
+}
+
+function loginAccount() {
+  const email = document.getElementById('authEmail').value.trim().toLowerCase();
+  const pass = document.getElementById('authPass').value;
+  const target = db.users[email];
+  if (!target || target.pass !== pass) { showToast('Sai tài khoản hoặc mật khẩu!'); return; }
+  db.currentUser = email;
+  saveDB();
+  renderProfile();
+  renderLessonPath();
+  showToast('Chào mừng trở lại, ' + target.name + '!');
+}
+
+function logoutAccount() {
+  db.currentUser = 'guest';
+  saveDB();
+  renderProfile();
+  renderLessonPath();
+  showToast('Đã chuyển về chế độ Khách.');
+}
+
+function saveSettings() {
+  const u = getUser();
+  u.showPinyin = document.getElementById('settingPinyin').checked;
+  saveDB();
+  showToast('Đã lưu cài đặt!');
+}
+
+function resetCurrentProgress() {
+  if (!confirm('Bạn có chắc muốn đặt lại toàn bộ tiến độ của tài khoản hiện tại?')) return;
+  const u = getUser();
+  u.xp = 0; u.completed = []; u.streak = 1;
+  saveDB();
+  renderLessonPath();
+  renderProfile();
+  showToast('Đã đặt lại tiến độ.');
+}
+
+function exportBackup() {
+  const blob = new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'PandaChinese-Backup-' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Đã tải xuống file sao lưu tiến độ!');
+}
+
+function importBackup(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const parsed = JSON.parse(reader.result);
+      if (!parsed.users) throw new Error('Invalid');
+      db = parsed;
+      saveDB();
+      renderLessonPath();
+      renderProfile();
+      showToast('Đã khôi phục toàn bộ tài khoản & tiến độ thành công!');
+    } catch(err) {
+      showToast('File sao lưu không hợp lệ!');
+    }
+  };
+  reader.readAsText(file);
+}
+
+// ================= REGISTER SERVICE WORKER (PWA OFFLINE) =================
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  });
+}
+
+// ================= INIT =================
+renderHskFilters();
+renderLessonPath();
+initPinyinTab();
+updateHeaderStats();
+</script>
+</body>
+</html>

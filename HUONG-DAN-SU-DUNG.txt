@@ -1,0 +1,38 @@
+====================================================================
+PANDACHINESE PRO (HSK 1–9) — BẢN ĐÓNG GÓI OFFLINE & CHIA SẺ ĐA THIẾT BỊ
+====================================================================
+
+Bộ ứng dụng này đã được tối ưu 100% không phụ thuộc Internet (không dùng thư viện mạng ngoài). Bạn có thể chia sẻ và chạy trên Windows, Mac, Android, iPhone/iPad theo 3 cách sau:
+
+--------------------------------------------------------------------
+CÁCH 1: CHẠY OFFLINE TRỰC TIẾP (NHANH NHẤT — KHÔNG CẦN CÀI ĐẶT)
+--------------------------------------------------------------------
+1. Giải nén thư mục "PandaChinese_Offline_App".
+2. Gửi cả thư mục (hoặc chỉ riêng file index.html) sang máy khác qua Zalo, Telegram, USB hoặc cáp.
+3. Mở file "index.html" bằng trình duyệt Chrome, Edge hoặc Safari là học được ngay không cần mạng.
+
+--------------------------------------------------------------------
+CÁCH 2: CÀI NHƯ APP ĐỘC LẬP (PWA) ĐỂ DÙNG OFFLINE TRÊN ĐIỆN THOẠI & PC
+--------------------------------------------------------------------
+Trong gói đã có sẵn file manifest.json và sw.js (Service Worker):
+1. Kéo thả toàn bộ thư mục giải nén lên Netlify Drop (https://app.netlify.com/drop) hoặc GitHub Pages (miễn phí).
+2. Gửi đường link vừa tạo cho người khác (hoặc mở trên điện thoại/máy tính bảng của bạn).
+3. Bấm "Thêm vào màn hình chính" (iPhone/Safari) hoặc "Cài đặt ứng dụng" (Android/Chrome, Windows/Edge).
+4. Sau lần mở đầu tiên, ứng dụng tự lưu toàn bộ vào bộ nhớ máy — tắt Wi-Fi/4G vẫn mở icon ngoài màn hình chính học bình thường!
+
+--------------------------------------------------------------------
+CÁCH 3: ĐÓNG GÓI THÀNH FILE .APK CHO ANDROID
+--------------------------------------------------------------------
+Nếu bạn muốn tạo file .apk gửi thẳng cho máy Android:
+- Cách nhanh: Tải file .zip này lên công cụ chuyển Web sang APK (như Website 2 APK Builder trên Windows hoặc Capacitor / Android Studio WebView).
+- Trỏ file khởi chạy vào "index.html".
+
+--------------------------------------------------------------------
+CHUYỂN TIẾN ĐỘ HỌC GIỮA CÁC MÁY KHI DÙNG OFFLINE
+--------------------------------------------------------------------
+1. Vào tab "Hồ sơ" -> bấm "Xuất file sao lưu (.json)".
+2. Gửi file .json đó sang máy mới.
+3. Trên máy mới, vào tab "Hồ sơ" -> bấm "Nhập file sao lưu (.json)" để khôi phục toàn bộ tài khoản, XP và các bài đã học.
+
+Lưu ý về giọng đọc tiếng Trung (zh-CN) khi không có mạng:
+- Để phát âm tiếng Trung mượt mà khi tắt hoàn toàn mạng, hãy bật gói giọng nói tiếng Trung (Chinese Simplified) trong cài đặt Text-to-Speech của Windows / Android / iOS.
